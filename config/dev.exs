@@ -83,3 +83,9 @@ config :phoenix_live_view,
 
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
+
+# Add OpenAI API key
+config :picture_whisper, :openai_api_key, "your_openai_api_key_here"
+
+# Configure uploads path
+config :picture_whisper, :uploads_path, "priv/static/uploads"

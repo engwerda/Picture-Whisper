@@ -60,7 +60,7 @@ defmodule PictureWhisper.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:openai, "~> 0.5.0"},
+      {:openai, "~> 0.5.4"},
       {:httpoison, "~> 2.0"}
     ]
   end

@@ -16,22 +16,22 @@ defmodule PictureWhisperWeb.ChatLive do
 
   @impl true
   def handle_event("generate", %{"prompt" => prompt}, socket) do
-    # TODO: Implement OpenAI API call
-    # For now, we'll just create a dummy image
-    case Images.create_image(%{
-      prompt: prompt,
-      url: "https://via.placeholder.com/300",
-      user_id: socket.assigns.current_user.id
-    }) do
-      {:ok, image} ->
-        {:noreply,
-         socket
-         |> update(:images, fn images -> [image | images] end)
-         |> assign(prompt: "")
-         |> put_flash(:info, "Image generated successfully!")}
+    case Images.generate_image(prompt, socket.assigns.current_user) do
+      {:ok, image_data} ->
+        case Images.save_image(image_data, prompt, socket.assigns.current_user.id) do
+          {:ok, image} ->
+            {:noreply,
+             socket
+             |> update(:images, fn images -> [image | images] end)
+             |> assign(prompt: "")
+             |> put_flash(:info, "Image generated successfully!")}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply, assign(socket, :changeset, changeset)}
+          {:error, reason} ->
+            {:noreply, put_flash(socket, :error, "Failed to save image: #{reason}")}
+        end
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Failed to generate image: #{reason}")}
     end
   end
 

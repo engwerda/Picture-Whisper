@@ -4,17 +4,17 @@ defmodule PictureWhisperWeb.ImageController do
   alias PictureWhisper.Images
 
   def generate(conn, %{"prompt" => prompt}) do
-    user = conn.assigns.current_user
-    api_key = user.openai_api_key
+    api_key = Application.get_env(:picture_whisper, :openai_api_key)
+    current_user = conn.assigns.current_user
 
     if is_nil(api_key) do
       conn
-      |> put_flash(:error, "OpenAI API key not set. Please update your settings.")
-      |> redirect(to: ~p"/settings")
+      |> put_flash(:error, "OpenAI API key not set. Please check your application configuration.")
+      |> redirect(to: ~p"/images/new")
     else
       case Images.generate_image(prompt, api_key) do
-        {:ok, image_url} ->
-          case Images.save_image(image_url, prompt, user.id) do
+        {:ok, image_data} ->
+          case Images.save_image(image_data, prompt, current_user.id) do
             {:ok, image} ->
               conn
               |> put_flash(:info, "Image generated successfully.")
@@ -22,13 +22,13 @@ defmodule PictureWhisperWeb.ImageController do
 
             {:error, reason} ->
               conn
-              |> put_flash(:error, reason)
+              |> put_flash(:error, "Failed to save image: #{reason}")
               |> redirect(to: ~p"/images/new")
           end
 
         {:error, reason} ->
           conn
-          |> put_flash(:error, reason)
+          |> put_flash(:error, "Failed to generate image: #{reason}")
           |> redirect(to: ~p"/images/new")
       end
     end

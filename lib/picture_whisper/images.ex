@@ -11,19 +11,31 @@ defmodule PictureWhisper.Images do
   @doc """
   Generates an image using OpenAI's DALL-E API with the user's API key.
   """
-  def generate_image(prompt, api_key) do
-    openai_client = OpenAI.new(api_key: api_key)
-    
-    case OpenAI.Images.generate(openai_client, %{
-      prompt: prompt,
-      n: 1,
-      size: "1024x1024",
-      response_format: "url"
-    }) do
-      {:ok, %{data: [%{"url" => image_url} | _]}} ->
-        {:ok, image_url}
-      {:error, error} ->
-        {:error, "Failed to generate image: #{inspect(error)}"}
+  def generate_image(prompt, user) do
+    case user.openai_api_key do
+      nil ->
+        {:error, "OpenAI API key not set for user"}
+
+      api_key ->
+        IO.puts("Generating image with prompt: #{prompt}")
+
+        case OpenAI.images_generations(
+               [
+                 prompt: prompt,
+                 n: 1,
+                 size: "1024x1024",
+                 response_format: "b64_json"
+               ],
+               %OpenAI.Config{api_key: api_key}
+             ) do
+          {:ok, %{data: [%{"b64_json" => image_data} | _]}} ->
+            IO.puts("Image generated successfully")
+            {:ok, image_data}
+
+          {:error, error} ->
+            IO.puts("Failed to generate image: #{inspect(error)}")
+            {:error, "Failed to generate image: #{inspect(error)}"}
+        end
     end
   end
 
@@ -35,9 +47,10 @@ defmodule PictureWhisper.Images do
          file_name = "#{:crypto.strong_rand_bytes(16) |> Base.url_encode64()}.png",
          file_path = Path.join(["priv", "static", "uploads", file_name]),
          :ok <- File.write(file_path, image_data),
+         full_url = "#{PictureWhisperWeb.Endpoint.url()}/uploads/#{file_name}",
          attrs = %{
            prompt: prompt,
-           url: "/uploads/#{file_name}",
+           url: full_url,
            user_id: user_id
          },
          {:ok, image} <- create_image(attrs) do
