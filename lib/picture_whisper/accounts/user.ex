@@ -9,6 +9,7 @@ defmodule PictureWhisper.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :openai_api_key, :string, redact: true
 
     timestamps(type: :utc_datetime)
   end
@@ -143,6 +144,13 @@ defmodule PictureWhisper.Accounts.User do
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> validate_length(:name, min: 2, max: 100)
+  end
+
+  def api_key_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:openai_api_key])
+    |> validate_required([:openai_api_key])
+    |> validate_length(:openai_api_key, min: 32, max: 64)
   end
 
   @doc """

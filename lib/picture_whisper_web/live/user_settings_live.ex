@@ -27,6 +27,20 @@ defmodule PictureWhisperWeb.UserSettingsLive do
 
       <div>
         <.simple_form
+          for={@api_key_form}
+          id="api_key_form"
+          phx-submit="update_api_key"
+          phx-change="validate_api_key"
+        >
+          <.input field={@api_key_form[:openai_api_key]} type="password" label="OpenAI API Key" required />
+          <:actions>
+            <.button phx-disable-with="Updating...">Update API Key</.button>
+          </:actions>
+        </.simple_form>
+      </div>
+
+      <div>
+        <.simple_form
           for={@email_form}
           id="email_form"
           phx-submit="update_email"
@@ -105,6 +119,7 @@ defmodule PictureWhisperWeb.UserSettingsLive do
     name_changeset = Accounts.change_user_name(user)
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
+    api_key_changeset = Accounts.change_user_api_key(user)
 
     socket =
       socket
@@ -115,6 +130,7 @@ defmodule PictureWhisperWeb.UserSettingsLive do
       |> assign(:name_form, to_form(name_changeset))
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
+      |> assign(:api_key_form, to_form(api_key_changeset))
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
@@ -209,6 +225,31 @@ defmodule PictureWhisperWeb.UserSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, password_form: to_form(changeset))}
+    end
+  end
+
+  def handle_event("validate_api_key", %{"user" => user_params}, socket) do
+    api_key_form =
+      socket.assigns.current_user
+      |> Accounts.change_user_api_key(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, api_key_form: api_key_form)}
+  end
+
+  def handle_event("update_api_key", %{"user" => user_params}, socket) do
+    user = socket.assigns.current_user
+
+    case Accounts.update_user_api_key(user, user_params) do
+      {:ok, updated_user} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "API key updated successfully.")
+         |> assign(:api_key_form, to_form(Accounts.change_user_api_key(updated_user, user_params)))}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, api_key_form: to_form(Map.put(changeset, :action, :insert)))}
     end
   end
 end

@@ -19,6 +19,16 @@ defmodule PictureWhisper.Accounts do
     |> Repo.update()
   end
 
+  def change_user_api_key(%User{} = user, attrs \\ %{}) do
+    User.api_key_changeset(user, attrs)
+  end
+
+  def update_user_api_key(%User{} = user, attrs) do
+    user
+    |> User.api_key_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Gets a user by email.
 
