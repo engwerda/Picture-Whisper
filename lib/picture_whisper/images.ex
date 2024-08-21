@@ -30,13 +30,13 @@ defmodule PictureWhisper.Images do
                  prompt: prompt,
                  n: 1,
                  size: "1024x1024",
-                 response_format: "b64_json"
+                 response_format: "url"
                ],
                config_override
              ) do
-          {:ok, %{data: [%{"b64_json" => image_data} | _]}} ->
+          {:ok, %{data: [%{"url" => image_url} | _]}} ->
             IO.puts("Image generated successfully")
-            {:ok, image_data}
+            {:ok, image_url}
 
           {:error, %HTTPoison.Error{reason: :timeout}} ->
             IO.puts("Image generation timed out")
@@ -55,7 +55,9 @@ defmodule PictureWhisper.Images do
   def save_image(image_url, prompt, user_id) do
     with {:ok, %{body: image_data}} <- HTTPoison.get(image_url),
          file_name = "#{:crypto.strong_rand_bytes(16) |> Base.url_encode64()}.png",
-         file_path = Path.join(["priv", "static", "uploads", file_name]),
+         uploads_dir = Path.join(["priv", "static", "uploads"]),
+         :ok <- File.mkdir_p(uploads_dir),
+         file_path = Path.join(uploads_dir, file_name),
          :ok <- File.write(file_path, image_data),
          full_url = "#{PictureWhisperWeb.Endpoint.url()}/uploads/#{file_name}",
          attrs = %{

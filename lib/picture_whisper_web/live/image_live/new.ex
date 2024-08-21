@@ -1,9 +1,6 @@
 defmodule PictureWhisperWeb.ImageLive.New do
   use PictureWhisperWeb, :live_view
 
-  alias PictureWhisper.Images
-  alias PictureWhisper.Images.Image
-
   @impl true
   def mount(_params, _session, socket) do
     {:ok, assign(socket, :form, to_form(%{"prompt" => ""}))}

@@ -2,7 +2,6 @@ defmodule PictureWhisperWeb.ChatLive do
   use PictureWhisperWeb, :live_view
 
   alias PictureWhisper.Images
-  alias PictureWhisper.Images.Image
 
   @impl true
   def mount(_params, _session, socket) do
@@ -27,14 +26,14 @@ defmodule PictureWhisperWeb.ChatLive do
              |> put_flash(:info, "Image generated successfully!")}
 
           {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Failed to save image: #{reason}")}
+            {:noreply, put_flash(socket, :error, "Failed to save image: #{inspect(reason)}")}
         end
 
       {:error, :timeout} ->
         {:noreply, put_flash(socket, :error, "Image generation timed out. Please try again.")}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to generate image: #{reason}")}
+        {:noreply, put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")}
     end
   end
 

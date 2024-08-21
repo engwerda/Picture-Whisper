@@ -23,6 +23,12 @@ defmodule PictureWhisperWeb.Router do
     get "/", PageController, :home
   end
 
+  # Serve files from the uploads directory
+  scope "/uploads", PictureWhisperWeb do
+    pipe_through :browser
+    get "/:filename", UploadsController, :show
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", PictureWhisperWeb do
   #   pipe_through :api
