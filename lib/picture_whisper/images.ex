@@ -9,6 +9,45 @@ defmodule PictureWhisper.Images do
   alias PictureWhisper.Images.Image
 
   @doc """
+  Generates an image using OpenAI's DALL-E API with the user's API key.
+  """
+  def generate_image(prompt, api_key) do
+    openai_client = OpenAI.new(api_key: api_key)
+    
+    case OpenAI.Images.generate(openai_client, %{
+      prompt: prompt,
+      n: 1,
+      size: "1024x1024",
+      response_format: "url"
+    }) do
+      {:ok, %{data: [%{"url" => image_url} | _]}} ->
+        {:ok, image_url}
+      {:error, error} ->
+        {:error, "Failed to generate image: #{inspect(error)}"}
+    end
+  end
+
+  @doc """
+  Saves an image locally.
+  """
+  def save_image(image_url, prompt, user_id) do
+    with {:ok, %{body: image_data}} <- HTTPoison.get(image_url),
+         file_name = "#{:crypto.strong_rand_bytes(16) |> Base.url_encode64()}.png",
+         file_path = Path.join(["priv", "static", "uploads", file_name]),
+         :ok <- File.write(file_path, image_data),
+         attrs = %{
+           prompt: prompt,
+           url: "/uploads/#{file_name}",
+           user_id: user_id
+         },
+         {:ok, image} <- create_image(attrs) do
+      {:ok, image}
+    else
+      {:error, reason} -> {:error, "Failed to save image: #{inspect(reason)}"}
+    end
+  end
+
+  @doc """
   Returns the list of images for a given user.
 
   ## Examples

@@ -1,0 +1,13 @@
+<.header>
+  Generate New Image
+  <:subtitle>Enter a prompt to generate an image using AI</:subtitle>
+</.header>
+
+<.simple_form for={@form} phx-submit="generate">
+  <.input field={@form[:prompt]} type="text" label="Prompt" required />
+  <:actions>
+    <.button phx-disable-with="Generating...">Generate Image</.button>
+  </:actions>
+</.simple_form>
+
+<.back navigate={~p"/images"}>Back to images</.back>

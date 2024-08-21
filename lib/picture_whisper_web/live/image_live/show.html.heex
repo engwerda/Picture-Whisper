@@ -1,0 +1,15 @@
+<.header>
+  Image <%= @image.id %>
+  <:subtitle>This is an image generated from the prompt.</:subtitle>
+  <:actions>
+    <.link patch={~p"/images"} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+      Back to images
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Prompt"><%= @image.prompt %></:item>
+</.list>
+
+<img src={@image.url} alt={@image.prompt} style="max-width: 100%; margin-top: 20px;" />

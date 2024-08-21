@@ -69,7 +69,12 @@ defmodule PictureWhisperWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       live "/chat", ChatLive, :index
+      live "/images", ImageLive.Index, :index
+      live "/images/new", ImageLive.New, :new
+      live "/images/:id", ImageLive.Show, :show
     end
+
+    post "/images/generate", ImageController, :generate
   end
 
   scope "/", PictureWhisperWeb do
