@@ -97,7 +97,7 @@ defmodule PictureWhisper.AccountsTest do
   describe "change_user_registration/2" do
     test "returns a changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_registration(%User{})
-      assert changeset.required == [:password, :email]
+      assert changeset.required == [:password, :email, :name]
     end
 
     test "allows fields to be set" do
@@ -120,7 +120,7 @@ defmodule PictureWhisper.AccountsTest do
   describe "change_user_email/2" do
     test "returns a user changeset" do
       assert %Ecto.Changeset{} = changeset = Accounts.change_user_email(%User{})
-      assert changeset.required == [:email]
+      assert changeset.required == [:email, :name]
     end
   end
 
