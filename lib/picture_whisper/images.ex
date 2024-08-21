@@ -22,7 +22,7 @@ defmodule PictureWhisper.Images do
         # Increase timeout to 60 seconds
         config_override = %OpenAI.Config{
           api_key: api_key,
-          http_options: [recv_timeout: 60_000]
+          http_options: [recv_timeout: 90_000]
         }
 
         case OpenAI.images_generations(
@@ -30,7 +30,9 @@ defmodule PictureWhisper.Images do
                  prompt: prompt,
                  n: 1,
                  size: "1024x1024",
-                 response_format: "url"
+                 response_format: "url",
+                 model: "dall-e-3",
+                 quality: "hd"
                ],
                config_override
              ) do
