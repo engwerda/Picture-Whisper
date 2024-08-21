@@ -19,6 +19,12 @@ defmodule PictureWhisper.Images do
       api_key ->
         IO.puts("Generating image with prompt: #{prompt}")
 
+        # Increase timeout to 60 seconds
+        config_override = %OpenAI.Config{
+          api_key: api_key,
+          http_options: [recv_timeout: 60_000]
+        }
+
         case OpenAI.images_generations(
                [
                  prompt: prompt,
@@ -26,11 +32,15 @@ defmodule PictureWhisper.Images do
                  size: "1024x1024",
                  response_format: "b64_json"
                ],
-               %OpenAI.Config{api_key: api_key}
+               config_override
              ) do
           {:ok, %{data: [%{"b64_json" => image_data} | _]}} ->
             IO.puts("Image generated successfully")
             {:ok, image_data}
+
+          {:error, %HTTPoison.Error{reason: :timeout}} ->
+            IO.puts("Image generation timed out")
+            {:error, :timeout}
 
           {:error, error} ->
             IO.puts("Failed to generate image: #{inspect(error)}")

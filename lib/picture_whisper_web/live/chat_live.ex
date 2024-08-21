@@ -30,6 +30,9 @@ defmodule PictureWhisperWeb.ChatLive do
             {:noreply, put_flash(socket, :error, "Failed to save image: #{reason}")}
         end
 
+      {:error, :timeout} ->
+        {:noreply, put_flash(socket, :error, "Image generation timed out. Please try again.")}
+
       {:error, reason} ->
         {:noreply, put_flash(socket, :error, "Failed to generate image: #{reason}")}
     end
