@@ -149,7 +149,6 @@ defmodule PictureWhisper.Accounts.User do
   def api_key_changeset(user, attrs) do
     user
     |> cast(attrs, [:openai_api_key])
-    |> validate_required([:openai_api_key])
     |> validate_length(:openai_api_key, min: 32, max: 64)
   end
 

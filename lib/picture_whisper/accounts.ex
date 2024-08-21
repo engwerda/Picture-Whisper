@@ -29,6 +29,12 @@ defmodule PictureWhisper.Accounts do
     |> Repo.update()
   end
 
+  def delete_user_api_key(%User{} = user) do
+    user
+    |> User.api_key_changeset(%{openai_api_key: nil})
+    |> Repo.update()
+  end
+
   @doc """
   Gets a user by email.
 
