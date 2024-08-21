@@ -140,8 +140,9 @@ defmodule PictureWhisperWeb.UserSettingsLive do
       {:ok, updated_user} ->
         {:noreply,
          socket
-         |> assign(name_form: to_form(Accounts.change_user_name(user)))
+         |> assign(name_form: to_form(Accounts.change_user_name(updated_user)))
          |> assign(:current_user, updated_user)
+         |> assign(:current_name, updated_user.name)
          |> put_flash(:info, "Name updated successfully.")}
 
       {:error, changeset} ->
