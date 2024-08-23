@@ -6,6 +6,11 @@ defmodule PictureWhisperWeb.UserAuth do
 
   alias PictureWhisper.Accounts
 
+  def get_current_user(session) do
+    user_token = session["user_token"]
+    if user_token, do: Accounts.get_user_by_session_token(user_token)
+  end
+
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
   # the token expiry itself in UserToken.

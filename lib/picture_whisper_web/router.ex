@@ -18,18 +18,9 @@ defmodule PictureWhisperWeb.Router do
   end
 
   scope "/", PictureWhisperWeb do
-    pipe_through [:browser, :put_user_token]
+    pipe_through [:browser]
 
     live "/", HomeLive, :index
-  end
-
-  defp put_user_token(conn, _) do
-    if current_user = conn.assigns[:current_user] do
-      token = Phoenix.Token.sign(conn, "user socket", current_user.id)
-      assign(conn, :user_token, token)
-    else
-      conn
-    end
   end
 
   # Serve files from the uploads directory
@@ -76,11 +67,13 @@ defmodule PictureWhisperWeb.Router do
     post "/users/log_in", UserSessionController, :create
   end
 
+  # Add this new scope for the root path
   scope "/", PictureWhisperWeb do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
       on_mount: [{PictureWhisperWeb.UserAuth, :ensure_authenticated}] do
+      live "/", ChatLive
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       live "/chat", ChatLive, :index

@@ -6,4 +6,8 @@ defmodule PictureWhisperWeb.PageController do
     # so skip the default app layout.
     render(conn, :home, layout: false)
   end
+
+  def redirect_to_chat(conn, _params) do
+    redirect(conn, to: "/chat")
+  end
 end
