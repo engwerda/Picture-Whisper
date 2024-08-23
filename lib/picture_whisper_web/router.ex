@@ -20,7 +20,7 @@ defmodule PictureWhisperWeb.Router do
   scope "/", PictureWhisperWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :index
   end
 
   # Serve files from the uploads directory
