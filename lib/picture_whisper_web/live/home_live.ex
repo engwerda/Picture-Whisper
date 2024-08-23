@@ -1,8 +1,8 @@
 defmodule PictureWhisperWeb.HomeLive do
   use PictureWhisperWeb, :live_view
 
-  def mount(_params, _session, socket) do
-    {:ok, socket}
+  def mount(_params, session, socket) do
+    {:ok, assign(socket, current_user: session["current_user"])}
   end
 
   def render(assigns) do
@@ -15,7 +15,7 @@ defmodule PictureWhisperWeb.HomeLive do
       <div class="space-x-4">
         <%= if @current_user do %>
           <.link
-            navigate={~p"/images"}
+            navigate={~p"/chat"}
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Generate Images

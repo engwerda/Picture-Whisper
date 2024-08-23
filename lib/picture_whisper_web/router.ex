@@ -18,9 +18,18 @@ defmodule PictureWhisperWeb.Router do
   end
 
   scope "/", PictureWhisperWeb do
-    pipe_through :browser
+    pipe_through [:browser, :put_user_token]
 
     live "/", HomeLive, :index
+  end
+
+  defp put_user_token(conn, _) do
+    if current_user = conn.assigns[:current_user] do
+      token = Phoenix.Token.sign(conn, "user socket", current_user.id)
+      assign(conn, :user_token, token)
+    else
+      conn
+    end
   end
 
   # Serve files from the uploads directory
