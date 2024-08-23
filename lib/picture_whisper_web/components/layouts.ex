@@ -10,5 +10,7 @@ defmodule PictureWhisperWeb.Layouts do
   """
   use PictureWhisperWeb, :html
 
+  import PictureWhisperWeb.CoreComponents
+
   embed_templates "layouts/*"
 end
