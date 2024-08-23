@@ -1,25 +1,26 @@
-<.flash_group flash={@flash} />
-<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
-  <div class="mx-auto max-w-xl lg:mx-0">
-    <h1 class="text-[2rem] font-semibold leading-10 tracking-tighter text-zinc-900 text-balance">
-      Welcome to Picture Whisper
-    </h1>
-    <p class="mt-4 text-base leading-7 text-zinc-600">
-      Picture Whisper is an innovative platform that allows you to generate unique images from text descriptions. Unleash your creativity and bring your ideas to life with our AI-powered image generation tool.
-    </p>
-    <div class="mt-10 flex flex-col sm:flex-row gap-4">
-      <a
-        href={~p"/users/register"}
-        class="rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-700 focus:outline-none focus:ring-4 focus:ring-zinc-900/50"
-      >
-        Sign Up
-      </a>
-      <a
-        href={~p"/users/log_in"}
-        class="rounded-lg bg-zinc-100 px-4 py-2.5 text-sm font-semibold text-zinc-900 hover:bg-zinc-200 focus:outline-none focus:ring-4 focus:ring-zinc-100/50"
-      >
-        Log In
-      </a>
+<div class="flex items-center justify-center min-h-screen bg-gray-100">
+  <div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32 bg-white rounded-lg shadow-lg">
+    <div class="mx-auto max-w-xl text-center">
+      <h1 class="text-[2rem] font-semibold leading-10 tracking-tighter text-zinc-900 text-balance">
+        Welcome to Picture Whisper
+      </h1>
+      <p class="mt-4 text-base leading-7 text-zinc-600">
+        Picture Whisper is an innovative platform that allows you to generate unique images from text descriptions. Unleash your creativity and bring your ideas to life with our AI-powered image generation tool.
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row gap-6 justify-center">
+        <a
+          href={~p"/users/register"}
+          class="rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-600/50 transition duration-150 ease-in-out"
+        >
+          Sign Up
+        </a>
+        <a
+          href={~p"/users/log_in"}
+          class="rounded-lg bg-green-500 px-6 py-3 text-base font-semibold text-white hover:bg-green-600 focus:outline-none focus:ring-4 focus:ring-green-500/50 transition duration-150 ease-in-out"
+        >
+          Log In
+        </a>
+      </div>
     </div>
   </div>
 </div>
