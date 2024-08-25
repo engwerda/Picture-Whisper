@@ -7,10 +7,14 @@
     </div>
     <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
       <%= if @current_user do %>
-        <span class="text-[0.8125rem] leading-6 text-zinc-900"><%= @current_user.email %></span>
-        <.link navigate={~p"/images"} class="hover:text-zinc-700">Generate Images</.link>
+        <span class="text-[0.8125rem] leading-6 text-zinc-900">
+          <%= @current_user.email %>
+        </span>
+        <.link navigate={~p"/chat"} class="hover:text-zinc-700">Generate Images</.link>
         <.link href={~p"/users/settings"} class="hover:text-zinc-700">Settings</.link>
-        <.link href={~p"/users/log_out"} method="delete" class="hover:text-zinc-700">Log out</.link>
+        <.link href={~p"/users/log_out"} method="delete" class="hover:text-zinc-700">
+          Log out
+        </.link>
       <% else %>
         <.link navigate={~p"/users/register"} class="hover:text-zinc-700">Sign up</.link>
         <.link navigate={~p"/users/log_in"} class="hover:text-zinc-700">Log in</.link>

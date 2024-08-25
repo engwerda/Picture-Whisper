@@ -6,10 +6,11 @@ defmodule PictureWhisperWeb.ChatLive do
 
   @impl true
   def mount(_params, session, socket) do
-    socket = assign_new(socket, :current_user, fn ->
-      UserAuth.get_current_user(session)
-    end)
-    
+    socket =
+      assign_new(socket, :current_user, fn ->
+        UserAuth.get_current_user(session)
+      end)
+
     if connected?(socket) do
       images = Images.list_images(socket.assigns.current_user)
       {:ok, assign(socket, images: images, prompt: "")}
@@ -46,7 +47,7 @@ defmodule PictureWhisperWeb.ChatLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-2xl mx-auto">
-      <h1 class="text-2xl font-bold mb-4">Chat</h1>
+      <h1 class="text-2xl font-bold mb-4">Generate Images</h1>
       <form phx-submit="generate" class="mb-4">
         <div class="flex">
           <input
@@ -56,7 +57,9 @@ defmodule PictureWhisperWeb.ChatLive do
             placeholder="Enter your prompt"
             class="flex-grow rounded-l-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
           />
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md">Generate</button>
+          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md">
+            Generate
+          </button>
         </div>
       </form>
       <div class="space-y-4">
