@@ -1,13 +1,17 @@
 defmodule PictureWhisperWeb.ChatLive do
-  use PictureWhisperWeb, :live_component
+  use PictureWhisperWeb, :live_view
 
   alias PictureWhisper.Images
+  alias PictureWhisperWeb.UserAuth
 
   @impl true
-  def update(assigns, socket) do
-    socket = assign(socket, current_user: assigns.current_user)
+  def mount(_params, session, socket) do
+    socket = assign_new(socket, :current_user, fn ->
+      UserAuth.get_current_user(session)
+    end)
+    
     if connected?(socket) do
-      images = Images.list_images(assigns.current_user)
+      images = Images.list_images(socket.assigns.current_user)
       {:ok, assign(socket, images: images, prompt: "")}
     else
       {:ok, assign(socket, images: [], prompt: "")}
