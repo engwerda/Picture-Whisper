@@ -56,7 +56,7 @@ defmodule PictureWhisper.Images do
   """
   def save_image(image_url, prompt, user_id) do
     with {:ok, %{body: image_data}} <- HTTPoison.get(image_url),
-         file_name = "#{:crypto.strong_rand_bytes(16) |> Base.url_encode64()}.png",
+         file_name = generate_file_name(),
          uploads_dir = Path.join(["priv", "static", "uploads"]),
          :ok <- File.mkdir_p(uploads_dir),
          file_path = Path.join(uploads_dir, file_name),
@@ -72,6 +72,13 @@ defmodule PictureWhisper.Images do
     else
       {:error, reason} -> {:error, "Failed to save image: #{inspect(reason)}"}
     end
+  end
+
+  defp generate_file_name do
+    :crypto.strong_rand_bytes(16)
+    |> Base.encode16()
+    |> String.downcase()
+    |> Kernel.<>(".png")
   end
 
   @doc """
