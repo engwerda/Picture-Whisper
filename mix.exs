@@ -62,7 +62,8 @@ defmodule PictureWhisper.MixProject do
       {:bandit, "~> 1.5"},
       {:openai, "~> 0.5.4"},
       {:httpoison, "~> 2.0"},
-      {:mime, "~> 2.0"}
+      {:mime, "~> 2.0"},
+      {:scrivener_ecto, "~> 2.0"}
     ]
   end
 

@@ -109,11 +109,18 @@ defmodule PictureWhisper.Images do
       [%Image{}, ...]
 
   """
-  def list_images(user) do
+  def list_images(user, page, per_page) do
     Image
     |> where(user_id: ^user.id)
     |> order_by(desc: :inserted_at)
-    |> Repo.all()
+    |> Repo.paginate(page: page, page_size: per_page)
+    |> Map.get(:entries)
+  end
+
+  def count_images(user) do
+    Image
+    |> where(user_id: ^user.id)
+    |> Repo.aggregate(:count)
   end
 
   @doc """

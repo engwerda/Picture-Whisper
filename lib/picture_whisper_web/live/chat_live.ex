@@ -4,6 +4,8 @@ defmodule PictureWhisperWeb.ChatLive do
   alias PictureWhisper.Images
   alias PictureWhisperWeb.UserAuth
 
+  @images_per_page 10
+
   @impl true
   def mount(_params, session, socket) do
     socket =
@@ -12,11 +14,32 @@ defmodule PictureWhisperWeb.ChatLive do
       end)
 
     if connected?(socket) do
-      images = Images.list_images(socket.assigns.current_user)
-      {:ok, assign(socket, images: images, prompt: "")}
+      images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
+      total_images = Images.count_images(socket.assigns.current_user)
+      total_pages = ceil(total_images / @images_per_page)
+
+      {:ok,
+       assign(socket,
+         images: images,
+         prompt: "",
+         page: 1,
+         total_pages: total_pages
+       )}
     else
-      {:ok, assign(socket, images: [], prompt: "")}
+      {:ok, assign(socket, images: [], prompt: "", page: 1, total_pages: 1)}
     end
+  end
+
+  @impl true
+  def handle_event("load_more", _, socket) do
+    %{page: page, current_user: current_user} = socket.assigns
+    next_page = page + 1
+    images = Images.list_images(current_user, next_page, @images_per_page)
+
+    {:noreply,
+     socket
+     |> update(:images, &(&1 ++ images))
+     |> assign(page: next_page)}
   end
 
   @impl true
@@ -78,9 +101,9 @@ defmodule PictureWhisperWeb.ChatLive do
           </button>
         </div>
       </form>
-      <div class="space-y-4">
+      <div class="space-y-4" id="images-container" phx-update="append">
         <%= for image <- @images do %>
-          <div class="border rounded-md p-4">
+          <div class="border rounded-md p-4" id={"image-#{image.id}"}>
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             <div class="flex justify-between items-center mt-2">
@@ -109,6 +132,13 @@ defmodule PictureWhisperWeb.ChatLive do
           </div>
         <% end %>
       </div>
+      <%= if @page < @total_pages do %>
+        <div class="mt-4 text-center">
+          <button phx-click="load_more" class="bg-blue-500 text-white px-4 py-2 rounded-md">
+            Load More
+          </button>
+        </div>
+      <% end %>
     </div>
     """
   end
