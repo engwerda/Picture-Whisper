@@ -75,9 +75,16 @@ defmodule PictureWhisperWeb.ChatLive do
 
     case Images.delete_image(image) do
       {:ok, _} ->
+        # Fetch the latest images
+        latest_images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
+        total_images = Images.count_images(socket.assigns.current_user)
+        total_pages = ceil(total_images / @images_per_page)
+
         {:noreply,
          socket
-         |> update(:images, fn images -> Enum.reject(images, &(&1.id == image.id)) end)
+         |> assign(:images, latest_images)
+         |> assign(:total_images, total_images)
+         |> assign(:total_pages, total_pages)
          |> put_flash(:info, "Image deleted successfully!")}
 
       {:error, _} ->
