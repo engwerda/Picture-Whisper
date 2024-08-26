@@ -74,16 +74,32 @@ defmodule PictureWhisperWeb.ChatLive do
 
   @impl true
   def handle_info({:image_generated, generation_id, result}, socket) do
-    case result do
-      {:ok, image} ->
-        socket = update(socket, :images, fn images -> [image | images] end)
-        socket = put_flash(socket, :info, "Image generated successfully!")
+    socket =
+      case result do
+        {:ok, image} ->
+          socket
+          |> update(:images, fn images -> [image | images] end)
+          |> put_flash(:info, "Image generated successfully!")
         
-      {:error, reason} ->
-        socket = put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")
-    end
+        {:error, reason} ->
+          put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")
+      end
     
     socket = update(socket, :pending_generations, &Map.delete(&1, generation_id))
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("generate", %{"prompt" => prompt}, socket) do
+    generation_id = UUID.uuid4()
+    socket = 
+      socket
+      |> update(:pending_generations, &Map.put(&1, generation_id, prompt))
+      |> assign(prompt: "")
+    
+    # Start the generation process asynchronously
+    Images.generate_image_async(prompt, socket.assigns.current_user, generation_id)
+    
     {:noreply, socket}
   end
 
@@ -121,7 +137,7 @@ defmodule PictureWhisperWeb.ChatLive do
       
       <div class="space-y-4" id="images-container" phx-update="prepend">
         <%= for image <- @images do %>
-          <div class="border rounded-md p-4" id={"image-#{image.id}"}>
+          <div class="border rounded-md p-4" id={"image-#{image.id}"} phx-hook="ImageLoaded">
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             <div class="flex justify-between items-center mt-2">
