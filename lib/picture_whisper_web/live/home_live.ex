@@ -10,7 +10,20 @@ defmodule PictureWhisperWeb.HomeLive do
     ~H"""
     <div>
       <%= if @current_user do %>
-        <.live_component module={PictureWhisperWeb.ChatLive} id="chat" current_user={@current_user} />
+        <div class="max-w-2xl mx-auto text-center">
+          <h1 class="text-4xl font-bold mb-4">Welcome back to Picture Whisper</h1>
+          <p class="text-xl mb-8">
+            Ready to generate more amazing images?
+          </p>
+          <div>
+            <.link
+              navigate={~p"/chat"}
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Image Generator
+            </.link>
+          </div>
+        </div>
       <% else %>
         <div class="max-w-2xl mx-auto text-center">
           <h1 class="text-4xl font-bold mb-4">Welcome to Picture Whisper</h1>
