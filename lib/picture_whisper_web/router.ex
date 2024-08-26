@@ -73,16 +73,10 @@ defmodule PictureWhisperWeb.Router do
 
     live_session :require_authenticated_user,
       on_mount: [{PictureWhisperWeb.UserAuth, :ensure_authenticated}] do
-      live "/", ChatLive
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       live "/chat", ChatLive, :index
-      live "/images", ImageLive.Index, :index
-      live "/images/new", ImageLive.New, :new
-      live "/images/:id", ImageLive.Show, :show
     end
-
-    post "/images/generate", ImageController, :generate
   end
 
   scope "/", PictureWhisperWeb do
