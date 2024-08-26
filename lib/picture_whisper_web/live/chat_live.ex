@@ -20,8 +20,11 @@ defmodule PictureWhisperWeb.ChatLive do
       end)
 
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(PictureWhisper.PubSub, "user_images:#{socket.assigns.current_user.id}")
-      
+      Phoenix.PubSub.subscribe(
+        PictureWhisper.PubSub,
+        "user_images:#{socket.assigns.current_user.id}"
+      )
+
       images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
       total_images = Images.count_images(socket.assigns.current_user)
       total_pages = ceil(total_images / @images_per_page)
@@ -39,17 +42,18 @@ defmodule PictureWhisperWeb.ChatLive do
          pending_generations: %{}
        )}
     else
-      {:ok, assign(socket,
-        images: [],
-        prompt: "",
-        size: List.first(@size_options),
-        quality: List.first(@quality_options),
-        size_options: @size_options,
-        quality_options: @quality_options,
-        page: 1,
-        total_pages: 1,
-        pending_generations: %{}
-      )}
+      {:ok,
+       assign(socket,
+         images: [],
+         prompt: "",
+         size: List.first(@size_options),
+         quality: List.first(@quality_options),
+         size_options: @size_options,
+         quality_options: @quality_options,
+         page: 1,
+         total_pages: 1,
+         pending_generations: %{}
+       )}
     end
   end
 
@@ -68,7 +72,7 @@ defmodule PictureWhisperWeb.ChatLive do
   @impl true
   def handle_event("delete_image", %{"id" => id}, socket) do
     image = Images.get_image!(id)
-    
+
     case Images.delete_image(image) do
       {:ok, _} ->
         {:noreply,
@@ -82,16 +86,21 @@ defmodule PictureWhisperWeb.ChatLive do
   end
 
   @impl true
-  def handle_event("generate", %{"prompt" => prompt, "size" => size, "quality" => quality}, socket) do
+  def handle_event(
+        "generate",
+        %{"prompt" => prompt, "size" => size, "quality" => quality},
+        socket
+      ) do
     generation_id = UUID.uuid4()
-    socket = 
+
+    socket =
       socket
       |> update(:pending_generations, &Map.put(&1, generation_id, prompt))
       |> assign(prompt: "", size: size, quality: quality)
-    
+
     # Start the generation process asynchronously
     Images.generate_image_async(prompt, size, quality, socket.assigns.current_user, generation_id)
-    
+
     {:noreply, socket}
   end
 
@@ -103,26 +112,31 @@ defmodule PictureWhisperWeb.ChatLive do
           socket
           |> update(:images, fn images -> [image | images] end)
           |> put_flash(:info, "Image generated successfully!")
-        
+
         {:error, reason} ->
           put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")
       end
-    
+
     socket = update(socket, :pending_generations, &Map.delete(&1, generation_id))
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("generate", %{"prompt" => prompt, "size" => size, "quality" => quality}, socket) do
+  def handle_event(
+        "generate",
+        %{"prompt" => prompt, "size" => size, "quality" => quality},
+        socket
+      ) do
     generation_id = UUID.uuid4()
-    socket = 
+
+    socket =
       socket
       |> update(:pending_generations, &Map.put(&1, generation_id, prompt))
       |> assign(prompt: "")
-    
+
     # Start the generation process asynchronously
     Images.generate_image_async(prompt, size, quality, socket.assigns.current_user, generation_id)
-    
+
     {:noreply, socket}
   end
 
@@ -148,7 +162,11 @@ defmodule PictureWhisperWeb.ChatLive do
           <div class="flex space-x-4">
             <div class="flex-1">
               <label for="size" class="block text-sm font-medium text-gray-700">Size</label>
-              <select id="size" name="size" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+              <select
+                id="size"
+                name="size"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              >
                 <%= for {name, value} <- @size_options do %>
                   <option value={value} selected={@size == value}><%= name %></option>
                 <% end %>
@@ -156,7 +174,11 @@ defmodule PictureWhisperWeb.ChatLive do
             </div>
             <div class="flex-1">
               <label for="quality" class="block text-sm font-medium text-gray-700">Quality</label>
-              <select id="quality" name="quality" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+              <select
+                id="quality"
+                name="quality"
+                class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              >
                 <%= for quality <- @quality_options do %>
                   <option value={quality} selected={@quality == quality}><%= quality %></option>
                 <% end %>
@@ -165,7 +187,7 @@ defmodule PictureWhisperWeb.ChatLive do
           </div>
         </div>
       </form>
-      
+
       <%= if map_size(@pending_generations) > 0 do %>
         <div class="mb-4">
           <h2 class="text-lg font-semibold mb-2">Pending Generations</h2>
@@ -177,31 +199,48 @@ defmodule PictureWhisperWeb.ChatLive do
           <% end %>
         </div>
       <% end %>
-      
-      <div class="space-y-4" id="images-container" phx-update="prepend">
+
+      <div class="space-y-4" id="images-container">
         <%= for image <- @images do %>
           <div class="border rounded-md p-4" id={"image-#{image.id}"} phx-hook="ImageLoaded">
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             <div class="flex justify-between items-center mt-2">
-              <a href={image.url} target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">
+              <a
+                href={image.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-blue-500 hover:underline"
+              >
                 Open in new tab
               </a>
               <div class="relative group">
-                <button 
-                  phx-click="delete_image" 
-                  phx-value-id={image.id} 
+                <button
+                  phx-click="delete_image"
+                  phx-value-id={image.id}
                   class="text-red-500 hover:text-red-700"
                   title="Delete this image"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 </button>
                 <div class="absolute bottom-full right-0 mb-2 w-48 p-2 text-sm bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
                   <div class="relative">
-                    <p class="text-gray-700">Click to delete this image permanently. This action cannot be undone.</p>
-                    <div class="absolute w-3 h-3 bg-white transform rotate-45 -bottom-1.5 right-2"></div>
+                    <p class="text-gray-700">
+                      Click to delete this image permanently. This action cannot be undone.
+                    </p>
+                    <div class="absolute w-3 h-3 bg-white transform rotate-45 -bottom-1.5 right-2">
+                    </div>
                   </div>
                 </div>
               </div>
@@ -209,7 +248,7 @@ defmodule PictureWhisperWeb.ChatLive do
           </div>
         <% end %>
       </div>
-      
+
       <%= if @page < @total_pages do %>
         <div class="mt-4 text-center">
           <button phx-click="load_more" class="bg-blue-500 text-white px-4 py-2 rounded-md">
