@@ -55,13 +55,15 @@ defmodule PictureWhisper.Images do
   Saves an image locally.
   """
   def save_image(image_url, prompt, user_id) do
-    with {:ok, %{body: image_data}} <- HTTPoison.get(image_url),
-         file_name = generate_file_name(),
+    with {:ok, %{body: image_data, headers: headers}} <- HTTPoison.get(image_url),
+         content_type = get_content_type(headers),
+         file_extension = get_file_extension(content_type),
+         file_name = generate_file_name(file_extension),
          uploads_dir = Path.join(["priv", "static", "uploads"]),
          :ok <- File.mkdir_p(uploads_dir),
          file_path = Path.join(uploads_dir, file_name),
          :ok <- File.write(file_path, image_data),
-         full_url = "#{PictureWhisperWeb.Endpoint.url()}/uploads/#{file_name}",
+         full_url = "/uploads/#{file_name}",
          attrs = %{
            prompt: prompt,
            url: full_url,
@@ -74,11 +76,28 @@ defmodule PictureWhisper.Images do
     end
   end
 
-  defp generate_file_name do
+  defp generate_file_name(extension) do
     :crypto.strong_rand_bytes(16)
     |> Base.encode16()
     |> String.downcase()
-    |> Kernel.<>(".png")
+    |> Kernel.<>(extension)
+  end
+
+  defp get_content_type(headers) do
+    {_, content_type} =
+      Enum.find(headers, fn {key, _} -> String.downcase(key) == "content-type" end)
+
+    content_type
+  end
+
+  defp get_file_extension(content_type) do
+    case content_type do
+      "image/png" -> ".png"
+      "image/jpeg" -> ".jpg"
+      "image/gif" -> ".gif"
+      # Default to .png if content type is unknown
+      _ -> ".png"
+    end
   end
 
   @doc """

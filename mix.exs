@@ -61,7 +61,8 @@ defmodule PictureWhisper.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:openai, "~> 0.5.4"},
-      {:httpoison, "~> 2.0"}
+      {:httpoison, "~> 2.0"},
+      {:mime, "~> 2.0"}
     ]
   end
 

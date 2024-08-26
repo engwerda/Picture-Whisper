@@ -67,6 +67,9 @@ defmodule PictureWhisperWeb.ChatLive do
           <div class="border rounded-md p-4">
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
+            <a href={image.url} target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">
+              Open in new tab
+            </a>
           </div>
         <% end %>
       </div>
