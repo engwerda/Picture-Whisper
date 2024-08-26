@@ -5,6 +5,12 @@ defmodule PictureWhisperWeb.ChatLive do
   alias PictureWhisperWeb.UserAuth
 
   @images_per_page 10
+  @size_options [
+    {"Square", "1024x1024"},
+    {"Portrait", "1024x1792"},
+    {"Landscape", "1792x1024"}
+  ]
+  @quality_options ["standard", "hd"]
 
   @impl true
   def mount(_params, session, socket) do
@@ -24,12 +30,26 @@ defmodule PictureWhisperWeb.ChatLive do
        assign(socket,
          images: images,
          prompt: "",
+         size: List.first(@size_options),
+         quality: List.first(@quality_options),
+         size_options: @size_options,
+         quality_options: @quality_options,
          page: 1,
          total_pages: total_pages,
-         pending_generations: %{}  # New assignment for tracking pending generations
+         pending_generations: %{}
        )}
     else
-      {:ok, assign(socket, images: [], prompt: "", page: 1, total_pages: 1, pending_generations: %{})}
+      {:ok, assign(socket,
+        images: [],
+        prompt: "",
+        size: List.first(@size_options),
+        quality: List.first(@quality_options),
+        size_options: @size_options,
+        quality_options: @quality_options,
+        page: 1,
+        total_pages: 1,
+        pending_generations: %{}
+      )}
     end
   end
 
@@ -62,14 +82,17 @@ defmodule PictureWhisperWeb.ChatLive do
   end
 
   @impl true
-  def handle_event("generate", %{"prompt" => prompt}, socket) do
+  def handle_event("generate", %{"prompt" => prompt, "size" => size, "quality" => quality}, socket) do
     generation_id = UUID.uuid4()
-    socket = update(socket, :pending_generations, &Map.put(&1, generation_id, prompt))
+    socket = 
+      socket
+      |> update(:pending_generations, &Map.put(&1, generation_id, prompt))
+      |> assign(prompt: "", size: size, quality: quality)
     
     # Start the generation process asynchronously
-    Images.generate_image_async(prompt, socket.assigns.current_user, generation_id)
+    Images.generate_image_async(prompt, size, quality, socket.assigns.current_user, generation_id)
     
-    {:noreply, assign(socket, prompt: "")}
+    {:noreply, socket}
   end
 
   @impl true
@@ -90,7 +113,7 @@ defmodule PictureWhisperWeb.ChatLive do
   end
 
   @impl true
-  def handle_event("generate", %{"prompt" => prompt}, socket) do
+  def handle_event("generate", %{"prompt" => prompt, "size" => size, "quality" => quality}, socket) do
     generation_id = UUID.uuid4()
     socket = 
       socket
@@ -98,7 +121,7 @@ defmodule PictureWhisperWeb.ChatLive do
       |> assign(prompt: "")
     
     # Start the generation process asynchronously
-    Images.generate_image_async(prompt, socket.assigns.current_user, generation_id)
+    Images.generate_image_async(prompt, size, quality, socket.assigns.current_user, generation_id)
     
     {:noreply, socket}
   end
@@ -109,17 +132,37 @@ defmodule PictureWhisperWeb.ChatLive do
     <div class="max-w-2xl mx-auto">
       <h1 class="text-2xl font-bold mb-4">Generate Images</h1>
       <form phx-submit="generate" class="mb-4">
-        <div class="flex">
-          <input
-            type="text"
-            name="prompt"
-            value={@prompt}
-            placeholder="Enter your prompt"
-            class="flex-grow rounded-l-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-          />
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md">
-            Generate
-          </button>
+        <div class="space-y-4">
+          <div class="flex">
+            <input
+              type="text"
+              name="prompt"
+              value={@prompt}
+              placeholder="Enter your prompt"
+              class="flex-grow rounded-l-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+            />
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r-md">
+              Generate
+            </button>
+          </div>
+          <div class="flex space-x-4">
+            <div class="flex-1">
+              <label for="size" class="block text-sm font-medium text-gray-700">Size</label>
+              <select id="size" name="size" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <%= for {name, value} <- @size_options do %>
+                  <option value={value} selected={@size == value}><%= name %></option>
+                <% end %>
+              </select>
+            </div>
+            <div class="flex-1">
+              <label for="quality" class="block text-sm font-medium text-gray-700">Quality</label>
+              <select id="quality" name="quality" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <%= for quality <- @quality_options do %>
+                  <option value={quality} selected={@quality == quality}><%= quality %></option>
+                <% end %>
+              </select>
+            </div>
+          </div>
         </div>
       </form>
       

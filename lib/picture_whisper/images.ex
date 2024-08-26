@@ -11,15 +11,22 @@ defmodule PictureWhisper.Images do
   @doc """
   Generates an image using OpenAI's DALL-E API with the user's API key.
   """
-  def generate_image(prompt, user) do
+  def generate_image(prompt, size, quality, user) do
+    # Convert size name to dimensions if necessary
+    size = case size do
+      "Square" -> "1024x1024"
+      "Portrait" -> "1024x1792"
+      "Landscape" -> "1792x1024"
+      _ -> size  # If it's already a dimension string, use it as is
+    end
     case user.openai_api_key do
       nil ->
         {:error, "OpenAI API key not set for user"}
 
       api_key ->
-        IO.puts("Generating image with prompt: #{prompt}")
+        IO.puts("Generating image with prompt: #{prompt}, size: #{size}, quality: #{quality}")
 
-        # Increase timeout to 60 seconds
+        # Increase timeout to 90 seconds
         config_override = %OpenAI.Config{
           api_key: api_key,
           http_options: [recv_timeout: 90_000]
@@ -29,10 +36,10 @@ defmodule PictureWhisper.Images do
                [
                  prompt: prompt,
                  n: 1,
-                 size: "1024x1024",
+                 size: size,
                  response_format: "url",
                  model: "dall-e-3",
-                 quality: "hd"
+                 quality: quality
                ],
                config_override
              ) do
@@ -54,9 +61,9 @@ defmodule PictureWhisper.Images do
   @doc """
   Generates an image asynchronously using OpenAI's DALL-E API with the user's API key.
   """
-  def generate_image_async(prompt, user, generation_id) do
+  def generate_image_async(prompt, size, quality, user, generation_id) do
     Task.start(fn ->
-      result = generate_image(prompt, user)
+      result = generate_image(prompt, size, quality, user)
       
       case result do
         {:ok, image_url} ->
