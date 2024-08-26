@@ -3,3 +3,33 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* Custom tooltip styles */
+.group:hover .absolute {
+  z-index: 10;
+}
+
+.absolute {
+  pointer-events: none;
+}
+
+/* Additional styles for the tooltip */
+.group:hover .absolute {
+  visibility: visible;
+}
+
+.absolute {
+  visibility: hidden;
+}
+
+/* Tooltip arrow */
+.absolute > div::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 10px;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+}
