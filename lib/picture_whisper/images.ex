@@ -52,6 +52,24 @@ defmodule PictureWhisper.Images do
   end
 
   @doc """
+  Generates an image asynchronously using OpenAI's DALL-E API with the user's API key.
+  """
+  def generate_image_async(prompt, user, generation_id) do
+    Task.start(fn ->
+      result = generate_image(prompt, user)
+      
+      case result do
+        {:ok, image_url} ->
+          {:ok, image} = save_image(image_url, prompt, user.id)
+          Phoenix.PubSub.broadcast(PictureWhisper.PubSub, "user_images:#{user.id}", {:image_generated, generation_id, {:ok, image}})
+        
+        {:error, reason} ->
+          Phoenix.PubSub.broadcast(PictureWhisper.PubSub, "user_images:#{user.id}", {:image_generated, generation_id, {:error, reason}})
+      end
+    end)
+  end
+
+  @doc """
   Saves an image locally.
   """
   def save_image(image_url, prompt, user_id) do

@@ -14,6 +14,8 @@ defmodule PictureWhisperWeb.ChatLive do
       end)
 
     if connected?(socket) do
+      Phoenix.PubSub.subscribe(PictureWhisper.PubSub, "user_images:#{socket.assigns.current_user.id}")
+      
       images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
       total_images = Images.count_images(socket.assigns.current_user)
       total_pages = ceil(total_images / @images_per_page)
@@ -23,10 +25,11 @@ defmodule PictureWhisperWeb.ChatLive do
          images: images,
          prompt: "",
          page: 1,
-         total_pages: total_pages
+         total_pages: total_pages,
+         pending_generations: %{}  # New assignment for tracking pending generations
        )}
     else
-      {:ok, assign(socket, images: [], prompt: "", page: 1, total_pages: 1)}
+      {:ok, assign(socket, images: [], prompt: "", page: 1, total_pages: 1, pending_generations: %{})}
     end
   end
 
@@ -60,26 +63,28 @@ defmodule PictureWhisperWeb.ChatLive do
 
   @impl true
   def handle_event("generate", %{"prompt" => prompt}, socket) do
-    case Images.generate_image(prompt, socket.assigns.current_user) do
-      {:ok, image_data} ->
-        case Images.save_image(image_data, prompt, socket.assigns.current_user.id) do
-          {:ok, image} ->
-            {:noreply,
-             socket
-             |> update(:images, fn images -> [image | images] end)
-             |> assign(prompt: "")
-             |> put_flash(:info, "Image generated successfully!")}
+    generation_id = UUID.uuid4()
+    socket = update(socket, :pending_generations, &Map.put(&1, generation_id, prompt))
+    
+    # Start the generation process asynchronously
+    Images.generate_image_async(prompt, socket.assigns.current_user, generation_id)
+    
+    {:noreply, assign(socket, prompt: "")}
+  end
 
-          {:error, reason} ->
-            {:noreply, put_flash(socket, :error, "Failed to save image: #{inspect(reason)}")}
-        end
-
-      {:error, :timeout} ->
-        {:noreply, put_flash(socket, :error, "Image generation timed out. Please try again.")}
-
+  @impl true
+  def handle_info({:image_generated, generation_id, result}, socket) do
+    case result do
+      {:ok, image} ->
+        socket = update(socket, :images, fn images -> [image | images] end)
+        socket = put_flash(socket, :info, "Image generated successfully!")
+        
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")}
+        socket = put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")
     end
+    
+    socket = update(socket, :pending_generations, &Map.delete(&1, generation_id))
+    {:noreply, socket}
   end
 
   @impl true
@@ -101,7 +106,20 @@ defmodule PictureWhisperWeb.ChatLive do
           </button>
         </div>
       </form>
-      <div class="space-y-4" id="images-container" phx-update="append">
+      
+      <%= if map_size(@pending_generations) > 0 do %>
+        <div class="mb-4">
+          <h2 class="text-lg font-semibold mb-2">Pending Generations</h2>
+          <%= for {id, prompt} <- @pending_generations do %>
+            <div class="flex items-center space-x-2 mb-2">
+              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+              <span class="text-sm text-gray-600"><%= prompt %></span>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      
+      <div class="space-y-4" id="images-container" phx-update="prepend">
         <%= for image <- @images do %>
           <div class="border rounded-md p-4" id={"image-#{image.id}"}>
             <p class="mb-2"><%= image.prompt %></p>
@@ -132,6 +150,7 @@ defmodule PictureWhisperWeb.ChatLive do
           </div>
         <% end %>
       </div>
+      
       <%= if @page < @total_pages do %>
         <div class="mt-4 text-center">
           <button phx-click="load_more" class="bg-blue-500 text-white px-4 py-2 rounded-md">
