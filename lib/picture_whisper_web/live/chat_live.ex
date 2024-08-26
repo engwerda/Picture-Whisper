@@ -216,7 +216,7 @@ defmodule PictureWhisperWeb.ChatLive do
 
       <div class="space-y-4" id="images-container">
         <%= for image <- @images do %>
-          <div class="border rounded-md p-4" id={"image-#{image.id}"} phx-hook="ImageLoaded">
+          <div class="border rounded-md p-4" id={"image-#{image.id}"}>
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             <div class="flex justify-between items-center mt-2">
