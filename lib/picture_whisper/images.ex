@@ -181,7 +181,19 @@ defmodule PictureWhisper.Images do
 
   """
   def delete_image(%Image{} = image) do
-    Repo.delete(image)
+    # Delete the file from the disk
+    file_path = Path.join(["priv", "static", image.url])
+    
+    case File.rm(file_path) do
+      :ok ->
+        # File deleted successfully, now delete from database
+        Repo.delete(image)
+      {:error, reason} ->
+        # Log the error but continue with database deletion
+        require Logger
+        Logger.warn("Failed to delete file #{file_path}: #{inspect(reason)}")
+        Repo.delete(image)
+    end
   end
 
   @doc """
