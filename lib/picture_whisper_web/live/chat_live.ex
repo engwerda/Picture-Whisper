@@ -108,9 +108,16 @@ defmodule PictureWhisperWeb.ChatLive do
   def handle_info({:image_generated, generation_id, result}, socket) do
     socket =
       case result do
-        {:ok, image} ->
+        {:ok, _image} ->
+          # Fetch the latest images
+          latest_images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
+          total_images = Images.count_images(socket.assigns.current_user)
+          total_pages = ceil(total_images / @images_per_page)
+
           socket
-          |> update(:images, fn images -> [image | images] end)
+          |> assign(:images, latest_images)
+          |> assign(:total_images, total_images)
+          |> assign(:total_pages, total_pages)
           |> put_flash(:info, "Image generated successfully!")
 
         {:error, reason} ->
