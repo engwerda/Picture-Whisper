@@ -162,7 +162,9 @@ defmodule PictureWhisperWeb.ChatLive do
             <div class="mt-4">
               <p class="text-lg font-semibold"><%= @selected_image.prompt %></p>
               <p class="text-sm text-gray-600">
-                Created: <%= Timex.format!(@selected_image.inserted_at, "{relative}", :relative) %>
+                Created: <span title={Timex.format!(@selected_image.inserted_at, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")}>
+                  <%= Timex.format!(@selected_image.inserted_at, "{relative}", :relative) %>
+                </span>
               </p>
               <p class="text-sm text-gray-600">Quality: <%= @selected_image.quality %></p>
               <p class="text-sm text-gray-600">Size: <%= @selected_image.size %></p>
@@ -235,14 +237,16 @@ defmodule PictureWhisperWeb.ChatLive do
         <%= for image <- @images do %>
           <div class="border rounded-md overflow-hidden shadow-md" id={"image-#{image.id}"}>
             <div class="bg-gray-100 px-4 py-2 border-b">
-              <h3 class="text-lg font-semibold text-gray-800 truncate"><%= image.prompt %></h3>
+              <h3 class="text-lg font-semibold text-gray-800 truncate" title={image.prompt}><%= image.prompt %></h3>
             </div>
             <div class="cursor-pointer" phx-click="open_modal" phx-value-id={image.id}>
               <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             </div>
             <div class="px-4 py-2 bg-white">
               <div class="flex justify-between items-center text-xs text-gray-500">
-                <span><%= Timex.format!(image.inserted_at, "{relative}", :relative) %></span>
+                <span title={Timex.format!(image.inserted_at, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")}>
+                  <%= Timex.format!(image.inserted_at, "{relative}", :relative) %>
+                </span>
                 <span><%= image.quality %> | <%= image.size %></span>
               </div>
               <div class="flex justify-between items-center mt-2">
