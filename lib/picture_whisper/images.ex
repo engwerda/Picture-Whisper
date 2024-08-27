@@ -223,7 +223,7 @@ defmodule PictureWhisper.Images do
       {:error, reason} ->
         # Log the error but continue with database deletion
         require Logger
-        Logger.warn("Failed to delete file #{file_path}: #{inspect(reason)}")
+        Logger.warning("Failed to delete file #{file_path}: #{inspect(reason)}")
         Repo.delete(image)
     end
   end

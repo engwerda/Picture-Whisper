@@ -136,25 +136,6 @@ defmodule PictureWhisperWeb.ChatLive do
   end
 
   @impl true
-  def handle_event(
-        "generate",
-        %{"prompt" => prompt, "size" => size, "quality" => quality},
-        socket
-      ) do
-    generation_id = UUID.uuid4()
-
-    socket =
-      socket
-      |> update(:pending_generations, &Map.put(&1, generation_id, prompt))
-      |> assign(prompt: "")
-
-    # Start the generation process asynchronously
-    Images.generate_image_async(prompt, size, quality, socket.assigns.current_user, generation_id)
-
-    {:noreply, socket}
-  end
-
-  @impl true
   def render(assigns) do
     ~H"""
     <div class="max-w-2xl mx-auto">
@@ -205,7 +186,7 @@ defmodule PictureWhisperWeb.ChatLive do
       <%= if map_size(@pending_generations) > 0 do %>
         <div class="mb-4">
           <h2 class="text-lg font-semibold mb-2">Pending Generations</h2>
-          <%= for {id, prompt} <- @pending_generations do %>
+          <%= for {_id, prompt} <- @pending_generations do %>
             <div class="flex items-center space-x-2 mb-2">
               <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
               <span class="text-sm text-gray-600"><%= prompt %></span>
