@@ -230,6 +230,19 @@ defmodule PictureWhisper.Images do
     end
   end
 
+  def delete_image_and_broadcast(image) do
+    case delete_image(image) do
+      {:ok, deleted_image} ->
+        Phoenix.PubSub.broadcast(
+          PictureWhisper.PubSub,
+          "user_images:#{deleted_image.user_id}",
+          {:image_deleted, deleted_image.id}
+        )
+        {:ok, deleted_image}
+      error -> error
+    end
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking image changes.
 

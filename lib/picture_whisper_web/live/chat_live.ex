@@ -77,23 +77,27 @@ defmodule PictureWhisperWeb.ChatLive do
   def handle_event("delete_image", %{"id" => id}, socket) do
     image = Images.get_image!(id)
 
-    case Images.delete_image(image) do
+    case Images.delete_image_and_broadcast(image) do
       {:ok, _} ->
-        # Fetch the latest images
-        latest_images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
-        total_images = Images.count_images(socket.assigns.current_user)
-        total_pages = ceil(total_images / @images_per_page)
-
-        {:noreply,
-         socket
-         |> assign(:images, latest_images)
-         |> assign(:total_images, total_images)
-         |> assign(:total_pages, total_pages)
-         |> put_toast(:warn, "Image deleted successfully!")}
+        {:noreply, put_toast(socket, :warn, "Image deleted successfully!")}
 
       {:error, _} ->
         {:noreply, put_toast(socket, :error, "Failed to delete image. Please try again.")}
     end
+  end
+
+  @impl true
+  def handle_info({:image_deleted, deleted_image_id}, socket) do
+    updated_images = Enum.reject(socket.assigns.images, &(&1.id == deleted_image_id))
+    total_images = Images.count_images(socket.assigns.current_user)
+    total_pages = ceil(total_images / @images_per_page)
+
+    {:noreply,
+     socket
+     |> assign(:images, updated_images)
+     |> assign(:total_images, total_images)
+     |> assign(:total_pages, total_pages)
+     |> put_toast(:warn, "An image has been deleted.")}
   end
 
   @impl true
