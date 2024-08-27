@@ -8,7 +8,8 @@ defmodule PictureWhisper.Images do
 
   alias PictureWhisper.Images.Image
 
-  @max_global_key_images 5
+  @max_global_key_images 10
+  def max_global_key_images, do: @max_global_key_images
 
   @doc """
   Returns a list of images for a given user, paginated.
@@ -154,6 +155,15 @@ defmodule PictureWhisper.Images do
   end
 
   @doc """
+  Returns the number of free images used and the number of free images left for a user.
+  """
+  def get_free_image_stats(user) do
+    used = count_user_global_key_images(user)
+    left = @max_global_key_images - used
+    {used, left}
+  end
+
+  @doc """
   Generates an image asynchronously using OpenAI's DALL-E API with the user's API key.
   """
   def generate_image_async(prompt, size, quality, user, generation_id) do
@@ -241,6 +251,7 @@ defmodule PictureWhisper.Images do
           "user_images:#{image.user_id}",
           {:image_deleted, deleted_image.id}
         )
+
         {:ok, deleted_image}
 
       error ->
