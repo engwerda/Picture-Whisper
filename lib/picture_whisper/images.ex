@@ -208,5 +208,44 @@ defmodule PictureWhisper.Images do
     end
   end
 
+  @doc """
+  Gets a single image.
+
+  Raises `Ecto.NoResultsError` if the Image does not exist.
+
+  ## Examples
+
+      iex> get_image!(123)
+      %Image{}
+
+      iex> get_image!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_image!(id), do: Repo.get!(Image, id)
+
+  @doc """
+  Deletes an image and broadcasts the deletion.
+
+  ## Examples
+
+      iex> delete_image_and_broadcast(image)
+      {:ok, %Image{}}
+
+  """
+  def delete_image_and_broadcast(%Image{} = image) do
+    case Repo.delete(image) do
+      {:ok, deleted_image} ->
+        Phoenix.PubSub.broadcast(
+          PictureWhisper.PubSub,
+          "user_images:#{image.user_id}",
+          {:image_deleted, deleted_image.id}
+        )
+        {:ok, deleted_image}
+      error ->
+        error
+    end
+  end
+
   # ... (rest of the existing functions remain unchanged)
 end
