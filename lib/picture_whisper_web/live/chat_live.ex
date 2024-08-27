@@ -144,7 +144,7 @@ defmodule PictureWhisperWeb.ChatLive do
   def handle_info({:image_generated, generation_id, result}, socket) do
     socket =
       case result do
-        {:ok, new_image} ->
+        {:ok, _new_image} ->
           # Fetch the latest images
           total_images = Images.count_images(socket.assigns.current_user)
           total_pages = ceil(total_images / @images_per_page)
