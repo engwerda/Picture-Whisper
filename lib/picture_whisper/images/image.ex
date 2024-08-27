@@ -5,6 +5,8 @@ defmodule PictureWhisper.Images.Image do
   schema "images" do
     field :prompt, :string
     field :url, :string
+    field :quality, :string
+    field :size, :string
     belongs_to :user, PictureWhisper.Accounts.User
 
     timestamps()
@@ -13,7 +15,8 @@ defmodule PictureWhisper.Images.Image do
   @doc false
   def changeset(image, attrs) do
     image
-    |> cast(attrs, [:prompt, :url, :user_id])
-    |> validate_required([:prompt, :url, :user_id])
+    |> cast(attrs, [:prompt, :url, :user_id, :quality, :size])
+    |> validate_required([:prompt, :url, :user_id, :quality, :size])
   end
 end
+
