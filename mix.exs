@@ -64,7 +64,8 @@ defmodule PictureWhisper.MixProject do
       {:httpoison, "~> 2.0"},
       {:mime, "~> 2.0"},
       {:scrivener_ecto, "~> 2.0"},
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:live_toast, "~> 0.6.4"}
     ]
   end
 

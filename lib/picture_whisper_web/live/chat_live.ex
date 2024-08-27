@@ -1,5 +1,6 @@
 defmodule PictureWhisperWeb.ChatLive do
   use PictureWhisperWeb, :live_view
+  import LiveToast
 
   alias PictureWhisper.Images
   alias PictureWhisperWeb.UserAuth
@@ -85,10 +86,10 @@ defmodule PictureWhisperWeb.ChatLive do
          |> assign(:images, latest_images)
          |> assign(:total_images, total_images)
          |> assign(:total_pages, total_pages)
-         |> put_flash(:info, "Image deleted successfully!")}
+         |> put_toast(:warn, "Image deleted successfully!")}
 
       {:error, _} ->
-        {:noreply, put_flash(socket, :error, "Failed to delete image. Please try again.")}
+        {:noreply, put_toast(socket, :error, "Failed to delete image. Please try again.")}
     end
   end
 
@@ -125,10 +126,10 @@ defmodule PictureWhisperWeb.ChatLive do
           |> assign(:images, latest_images)
           |> assign(:total_images, total_images)
           |> assign(:total_pages, total_pages)
-          |> put_flash(:info, "Image generated successfully!")
+          |> put_toast(:success, "Image generated successfully!")
 
         {:error, reason} ->
-          put_flash(socket, :error, "Failed to generate image: #{inspect(reason)}")
+          put_toast(socket, :error, "Failed to generate image: #{inspect(reason)}")
       end
 
     socket = update(socket, :pending_generations, &Map.delete(&1, generation_id))
