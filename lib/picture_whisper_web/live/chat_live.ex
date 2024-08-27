@@ -257,12 +257,12 @@ defmodule PictureWhisperWeb.ChatLive do
                 >
                   View full screen
                 </button>
-                <div class="relative group">
-                  <button
-                    phx-click="delete_image"
-                    phx-value-id={image.id}
-                    class="text-red-500 hover:text-red-700"
-                    title="Delete this image"
+                <div class="flex items-center space-x-2">
+                  <a
+                    href={image.url}
+                    download
+                    class="text-green-500 hover:text-green-700"
+                    title="Download this image"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -272,17 +272,38 @@ defmodule PictureWhisperWeb.ChatLive do
                     >
                       <path
                         fill-rule="evenodd"
-                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
                         clip-rule="evenodd"
                       />
                     </svg>
-                  </button>
-                  <div class="absolute bottom-full right-0 mb-2 w-48 p-2 text-sm bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                    <div class="relative">
-                      <p class="text-gray-700">
-                        Click to delete this image permanently. This action cannot be undone.
-                      </p>
-                      <div class="absolute w-3 h-3 bg-white transform rotate-45 -bottom-1.5 right-2">
+                  </a>
+                  <div class="relative group">
+                    <button
+                      phx-click="delete_image"
+                      phx-value-id={image.id}
+                      class="text-red-500 hover:text-red-700"
+                      title="Delete this image"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <div class="absolute bottom-full right-0 mb-2 w-48 p-2 text-sm bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                      <div class="relative">
+                        <p class="text-gray-700">
+                          Click to delete this image permanently. This action cannot be undone.
+                        </p>
+                        <div class="absolute w-3 h-3 bg-white transform rotate-45 -bottom-1.5 right-2">
+                        </div>
                       </div>
                     </div>
                   </div>
