@@ -1,5 +1,6 @@
 import Config
 
+
 # Configure your database
 config :picture_whisper, PictureWhisper.Repo,
   username: "postgres",

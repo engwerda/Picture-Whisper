@@ -19,42 +19,47 @@ defmodule PictureWhisper.Images do
       "Landscape" -> "1792x1024"
       _ -> size  # If it's already a dimension string, use it as is
     end
+
+    api_key = get_api_key(user)
+
+    IO.puts("Generating image with prompt: #{prompt}, size: #{size}, quality: #{quality}")
+
+    # Increase timeout to 90 seconds
+    config_override = %OpenAI.Config{
+      api_key: api_key,
+      http_options: [recv_timeout: 90_000]
+    }
+
+    case OpenAI.images_generations(
+           [
+             prompt: prompt,
+             n: 1,
+             size: size,
+             response_format: "url",
+             model: "dall-e-3",
+             quality: quality
+           ],
+           config_override
+         ) do
+      {:ok, %{data: [%{"url" => image_url} | _]}} ->
+        IO.puts("Image generated successfully")
+        {:ok, image_url}
+
+      {:error, %HTTPoison.Error{reason: :timeout}} ->
+        IO.puts("Image generation timed out")
+        {:error, :timeout}
+
+      {:error, error} ->
+        IO.puts("Failed to generate image: #{inspect(error)}")
+        {:error, "Failed to generate image: #{inspect(error)}"}
+    end
+  end
+
+  defp get_api_key(user) do
     case user.openai_api_key do
       nil ->
-        {:error, "OpenAI API key not set for user"}
-
-      api_key ->
-        IO.puts("Generating image with prompt: #{prompt}, size: #{size}, quality: #{quality}")
-
-        # Increase timeout to 90 seconds
-        config_override = %OpenAI.Config{
-          api_key: api_key,
-          http_options: [recv_timeout: 90_000]
-        }
-
-        case OpenAI.images_generations(
-               [
-                 prompt: prompt,
-                 n: 1,
-                 size: size,
-                 response_format: "url",
-                 model: "dall-e-3",
-                 quality: quality
-               ],
-               config_override
-             ) do
-          {:ok, %{data: [%{"url" => image_url} | _]}} ->
-            IO.puts("Image generated successfully")
-            {:ok, image_url}
-
-          {:error, %HTTPoison.Error{reason: :timeout}} ->
-            IO.puts("Image generation timed out")
-            {:error, :timeout}
-
-          {:error, error} ->
-            IO.puts("Failed to generate image: #{inspect(error)}")
-            {:error, "Failed to generate image: #{inspect(error)}"}
-        end
+        Application.get_env(:picture_whisper, :openai)[:global_api_key]
+      api_key -> api_key
     end
   end
 
