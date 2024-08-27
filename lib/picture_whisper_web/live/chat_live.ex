@@ -4,6 +4,7 @@ defmodule PictureWhisperWeb.ChatLive do
 
   alias PictureWhisper.Images
   alias PictureWhisperWeb.UserAuth
+  alias Timex
 
   @images_per_page 10
   @size_options [
@@ -40,7 +41,8 @@ defmodule PictureWhisperWeb.ChatLive do
          quality_options: @quality_options,
          page: 1,
          total_pages: total_pages,
-         pending_generations: %{}
+         pending_generations: %{},
+         selected_image: nil
        )}
     else
       {:ok,
@@ -53,7 +55,8 @@ defmodule PictureWhisperWeb.ChatLive do
          quality_options: @quality_options,
          page: 1,
          total_pages: 1,
-         pending_generations: %{}
+         pending_generations: %{},
+         selected_image: nil
        )}
     end
   end
@@ -113,6 +116,15 @@ defmodule PictureWhisperWeb.ChatLive do
   end
 
   @impl true
+  def handle_event("open_modal", %{"id" => id}, socket) do
+    image = Enum.find(socket.assigns.images, &(&1.id == String.to_integer(id)))
+    {:noreply, assign(socket, selected_image: image)}
+  end
+
+  def handle_event("close_modal", _, socket) do
+    {:noreply, assign(socket, selected_image: nil)}
+  end
+
   def handle_info({:image_generated, generation_id, result}, socket) do
     socket =
       case result do
@@ -141,6 +153,27 @@ defmodule PictureWhisperWeb.ChatLive do
     ~H"""
     <div class="max-w-2xl mx-auto">
       <h1 class="text-2xl font-bold mb-4">Generate Images</h1>
+      <%= if @selected_image do %>
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div class="bg-white p-4 rounded-lg max-w-3xl max-h-[90vh] overflow-auto">
+            <img src={@selected_image.url} alt={@selected_image.prompt} class="max-w-full h-auto" />
+            <div class="mt-4">
+              <p class="text-lg font-semibold"><%= @selected_image.prompt %></p>
+              <p class="text-sm text-gray-600">
+                Created: <%= Timex.format!(@selected_image.inserted_at, "{relative}", :relative) %>
+              </p>
+              <p class="text-sm text-gray-600">Quality: <%= @selected_image.quality %></p>
+              <p class="text-sm text-gray-600">Size: <%= @selected_image.size %></p>
+            </div>
+            <button
+              phx-click="close_modal"
+              class="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      <% end %>
       <form phx-submit="generate" class="mb-4">
         <div class="space-y-4">
           <div class="flex">
@@ -202,19 +235,18 @@ defmodule PictureWhisperWeb.ChatLive do
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             <div class="mt-2 text-sm text-gray-600">
-              <p>Created: <%= Calendar.strftime(image.inserted_at, "%Y-%m-%d %H:%M:%S") %></p>
+              <p>Created: <%= Timex.format!(image.inserted_at, "{relative}", :relative) %></p>
               <p>Quality: <%= image.quality %></p>
               <p>Size: <%= image.size %></p>
             </div>
             <div class="flex justify-between items-center mt-2">
-              <a
-                href={image.url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                phx-click="open_modal"
+                phx-value-id={image.id}
                 class="text-blue-500 hover:underline"
               >
-                Open in new tab
-              </a>
+                View full screen
+              </button>
               <div class="relative group">
                 <button
                   phx-click="delete_image"
