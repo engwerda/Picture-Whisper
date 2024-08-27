@@ -154,8 +154,8 @@ defmodule PictureWhisperWeb.ChatLive do
     <div class="max-w-2xl mx-auto">
       <h1 class="text-2xl font-bold mb-4">Generate Images</h1>
       <%= if @selected_image do %>
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div class="bg-white p-4 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" phx-click="close_modal">
+          <div class="bg-white p-4 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col" phx-click-away="close_modal">
             <div class="flex-grow overflow-auto">
               <img src={@selected_image.url} alt={@selected_image.prompt} class="w-full h-auto object-contain" />
             </div>
