@@ -8,7 +8,7 @@ defmodule PictureWhisper.Images do
 
   alias PictureWhisper.Images.Image
 
-  @max_global_key_images 4
+  @max_global_key_images 5
 
   @doc """
   Returns a list of images for a given user, paginated.
@@ -242,6 +242,7 @@ defmodule PictureWhisper.Images do
           {:image_deleted, deleted_image.id}
         )
         {:ok, deleted_image}
+
       error ->
         error
     end

@@ -27,13 +27,13 @@ defmodule PictureWhisperWeb.ChatLive do
         "user_images:#{socket.assigns.current_user.id}"
       )
 
-      images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
+      images_page = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
       total_images = Images.count_images(socket.assigns.current_user)
       total_pages = ceil(total_images / @images_per_page)
 
       {:ok,
        assign(socket,
-         images: images,
+         images: images_page.entries,
          prompt: "",
          size: List.first(@size_options),
          quality: List.first(@quality_options),
@@ -63,14 +63,14 @@ defmodule PictureWhisperWeb.ChatLive do
 
   @impl true
   def handle_event("load_more", _, socket) do
-    %{page: page, current_user: current_user} = socket.assigns
+    %{page: page, current_user: current_user, images: current_images} = socket.assigns
     next_page = page + 1
-    images = Images.list_images(current_user, next_page, @images_per_page)
+    new_images = Images.list_images(current_user, next_page, @images_per_page)
 
     {:noreply,
      socket
-     |> update(:images, &(&1 ++ images))
-     |> assign(page: next_page)}
+     |> assign(:images, current_images ++ new_images.entries)
+     |> assign(:page, next_page)}
   end
 
   @impl true
@@ -134,14 +134,15 @@ defmodule PictureWhisperWeb.ChatLive do
   def handle_info({:image_generated, generation_id, result}, socket) do
     socket =
       case result do
-        {:ok, _image} ->
+        {:ok, new_image} ->
           # Fetch the latest images
           latest_images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
           total_images = Images.count_images(socket.assigns.current_user)
           total_pages = ceil(total_images / @images_per_page)
 
           socket
-          |> assign(:images, latest_images)
+          |> assign(:images, [new_image | socket.assigns.images] |> Enum.take(@images_per_page))
+          |> assign(:page, 1)
           |> assign(:total_images, total_images)
           |> assign(:total_pages, total_pages)
           |> put_toast(:success, "Image generated successfully!")
