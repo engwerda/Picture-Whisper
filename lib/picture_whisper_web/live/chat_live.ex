@@ -159,15 +159,14 @@ defmodule PictureWhisperWeb.ChatLive do
             <div class="flex-grow overflow-auto">
               <img src={@selected_image.url} alt={@selected_image.prompt} class="w-full h-auto object-contain" />
             </div>
-            <div class="mt-4">
-              <p class="text-lg font-semibold"><%= @selected_image.prompt %></p>
-              <p class="text-sm text-gray-600">
-                Created: <span title={Timex.format!(@selected_image.inserted_at, "{YYYY}-{0M}-{0D} {h24}:{m}:{s}")}>
-                  <%= Timex.format!(@selected_image.inserted_at, "{relative}", :relative) %>
+            <div class="mt-4 px-4 py-2 bg-white">
+              <h3 class="text-lg font-semibold text-gray-800"><%= @selected_image.prompt %></h3>
+              <div class="flex justify-between items-center text-sm text-gray-600 mt-2">
+                <span>
+                  <%= Timex.format!(@selected_image.inserted_at, "{Mfull} {D}, {YYYY} at {h12}:{m} {am}")%>
                 </span>
-              </p>
-              <p class="text-sm text-gray-600">Quality: <%= @selected_image.quality %></p>
-              <p class="text-sm text-gray-600">Size: <%= @selected_image.size %></p>
+                <span><%= @selected_image.quality %> | <%= @selected_image.size %></span>
+              </div>
             </div>
             <button
               phx-click="close_modal"
