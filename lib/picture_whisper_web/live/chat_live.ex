@@ -87,20 +87,6 @@ defmodule PictureWhisperWeb.ChatLive do
   end
 
   @impl true
-  def handle_info({:image_deleted, deleted_image_id}, socket) do
-    updated_images = Enum.reject(socket.assigns.images, &(&1.id == deleted_image_id))
-    total_images = Images.count_images(socket.assigns.current_user)
-    total_pages = ceil(total_images / @images_per_page)
-
-    {:noreply,
-     socket
-     |> assign(:images, updated_images)
-     |> assign(:total_images, total_images)
-     |> assign(:total_pages, total_pages)
-     |> put_toast(:warn, "An image has been deleted.")}
-  end
-
-  @impl true
   def handle_event(
         "generate",
         %{"prompt" => prompt, "size" => size, "quality" => quality},
@@ -125,8 +111,23 @@ defmodule PictureWhisperWeb.ChatLive do
     {:noreply, assign(socket, selected_image: image)}
   end
 
+  @impl true
   def handle_event("close_modal", _, socket) do
     {:noreply, assign(socket, selected_image: nil)}
+  end
+
+  @impl true
+  def handle_info({:image_deleted, deleted_image_id}, socket) do
+    updated_images = Enum.reject(socket.assigns.images, &(&1.id == deleted_image_id))
+    total_images = Images.count_images(socket.assigns.current_user)
+    total_pages = ceil(total_images / @images_per_page)
+
+    {:noreply,
+     socket
+     |> assign(:images, updated_images)
+     |> assign(:total_images, total_images)
+     |> assign(:total_pages, total_pages)
+     |> put_toast(:warn, "An image has been deleted.")}
   end
 
   @impl true
