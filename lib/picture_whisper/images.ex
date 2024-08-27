@@ -67,7 +67,7 @@ defmodule PictureWhisper.Images do
       
       case result do
         {:ok, image_url} ->
-          {:ok, image} = save_image(image_url, prompt, user.id)
+          {:ok, image} = save_image(image_url, prompt, user.id, quality, size)
           Phoenix.PubSub.broadcast(PictureWhisper.PubSub, "user_images:#{user.id}", {:image_generated, generation_id, {:ok, image}})
         
         {:error, reason} ->
@@ -79,7 +79,7 @@ defmodule PictureWhisper.Images do
   @doc """
   Saves an image locally.
   """
-  def save_image(image_url, prompt, user_id) do
+  def save_image(image_url, prompt, user_id, quality, size) do
     with {:ok, %{body: image_data, headers: headers}} <- HTTPoison.get(image_url),
          content_type = get_content_type(headers),
          file_extension = get_file_extension(content_type),
@@ -92,7 +92,9 @@ defmodule PictureWhisper.Images do
          attrs = %{
            prompt: prompt,
            url: full_url,
-           user_id: user_id
+           user_id: user_id,
+           quality: quality,
+           size: size
          },
          {:ok, image} <- create_image(attrs) do
       {:ok, image}

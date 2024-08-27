@@ -201,6 +201,11 @@ defmodule PictureWhisperWeb.ChatLive do
           <div class="border rounded-md p-4" id={"image-#{image.id}"}>
             <p class="mb-2"><%= image.prompt %></p>
             <img src={image.url} alt={image.prompt} class="w-full h-auto" />
+            <div class="mt-2 text-sm text-gray-600">
+              <p>Created: <%= Calendar.strftime(image.inserted_at, "%Y-%m-%d %H:%M:%S") %></p>
+              <p>Quality: <%= image.quality %></p>
+              <p>Size: <%= image.size %></p>
+            </div>
             <div class="flex justify-between items-center mt-2">
               <a
                 href={image.url}
