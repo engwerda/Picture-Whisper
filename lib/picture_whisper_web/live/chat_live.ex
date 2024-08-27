@@ -136,12 +136,11 @@ defmodule PictureWhisperWeb.ChatLive do
       case result do
         {:ok, new_image} ->
           # Fetch the latest images
-          latest_images = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
           total_images = Images.count_images(socket.assigns.current_user)
           total_pages = ceil(total_images / @images_per_page)
 
           socket
-          |> assign(:images, [new_image | socket.assigns.images] |> Enum.take(@images_per_page))
+          |> assign(:images, Images.list_images(socket.assigns.current_user, 1, @images_per_page).entries)
           |> assign(:page, 1)
           |> assign(:total_images, total_images)
           |> assign(:total_pages, total_pages)
