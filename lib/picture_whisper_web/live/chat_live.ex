@@ -231,52 +231,55 @@ defmodule PictureWhisperWeb.ChatLive do
         </div>
       <% end %>
 
-      <div class="space-y-4" id="images-container">
+      <div class="space-y-6" id="images-container">
         <%= for image <- @images do %>
-          <div class="border rounded-md p-4" id={"image-#{image.id}"}>
-            <p class="mb-2"><%= image.prompt %></p>
+          <div class="border rounded-md overflow-hidden shadow-md" id={"image-#{image.id}"}>
+            <div class="bg-gray-100 px-4 py-2 border-b">
+              <h3 class="text-lg font-semibold text-gray-800 truncate"><%= image.prompt %></h3>
+            </div>
             <div class="cursor-pointer" phx-click="open_modal" phx-value-id={image.id}>
               <img src={image.url} alt={image.prompt} class="w-full h-auto" />
             </div>
-            <div class="mt-2 text-sm text-gray-600">
-              <p>Created: <%= Timex.format!(image.inserted_at, "{relative}", :relative) %></p>
-              <p>Quality: <%= image.quality %></p>
-              <p>Size: <%= image.size %></p>
-            </div>
-            <div class="flex justify-between items-center mt-2">
-              <button
-                phx-click="open_modal"
-                phx-value-id={image.id}
-                class="text-blue-500 hover:underline"
-              >
-                View full screen
-              </button>
-              <div class="relative group">
+            <div class="px-4 py-2 bg-white">
+              <div class="flex justify-between items-center text-xs text-gray-500">
+                <span><%= Timex.format!(image.inserted_at, "{relative}", :relative) %></span>
+                <span><%= image.quality %> | <%= image.size %></span>
+              </div>
+              <div class="flex justify-between items-center mt-2">
                 <button
-                  phx-click="delete_image"
+                  phx-click="open_modal"
                   phx-value-id={image.id}
-                  class="text-red-500 hover:text-red-700"
-                  title="Delete this image"
+                  class="text-blue-500 hover:underline text-sm"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
+                  View full screen
                 </button>
-                <div class="absolute bottom-full right-0 mb-2 w-48 p-2 text-sm bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
-                  <div class="relative">
-                    <p class="text-gray-700">
-                      Click to delete this image permanently. This action cannot be undone.
-                    </p>
-                    <div class="absolute w-3 h-3 bg-white transform rotate-45 -bottom-1.5 right-2">
+                <div class="relative group">
+                  <button
+                    phx-click="delete_image"
+                    phx-value-id={image.id}
+                    class="text-red-500 hover:text-red-700"
+                    title="Delete this image"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                  <div class="absolute bottom-full right-0 mb-2 w-48 p-2 text-sm bg-white rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
+                    <div class="relative">
+                      <p class="text-gray-700">
+                        Click to delete this image permanently. This action cannot be undone.
+                      </p>
+                      <div class="absolute w-3 h-3 bg-white transform rotate-45 -bottom-1.5 right-2">
+                      </div>
                     </div>
                   </div>
                 </div>
