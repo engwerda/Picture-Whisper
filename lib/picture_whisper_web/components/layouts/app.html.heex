@@ -6,20 +6,9 @@
       </.link>
     </div>
     <div class="md:hidden">
-      <button phx-click={JS.toggle(to: "#mobile-menu")} class="text-zinc-500 hover:text-zinc-600">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          class="h-6 w-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          >
+      <button phx-click={JS.toggle(to: "#mobile-menu" )} class="text-zinc-500 hover:text-zinc-600">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
           </path>
         </svg>
       </button>
@@ -30,14 +19,14 @@
           <%= @current_user.email %>
         </span>
         <.link navigate={~p"/chat"} class="hover:text-zinc-700">Generate Images</.link>
-        <.link href={~p"/users/settings"} class="hover:text-zinc-700">Settings</.link>
+        <.link navigate={~p"/users/settings"} class="hover:text-zinc-700">Settings</.link>
         <.link href={~p"/users/log_out"} method="delete" class="hover:text-zinc-700">
           Log out
         </.link>
-      <% else %>
-        <.link navigate={~p"/users/register"} class="hover:text-zinc-700">Sign up</.link>
-        <.link navigate={~p"/users/log_in"} class="hover:text-zinc-700">Log in</.link>
-      <% end %>
+        <% else %>
+          <.link navigate={~p"/users/register"} class="hover:text-zinc-700">Sign up</.link>
+          <.link navigate={~p"/users/log_in"} class="hover:text-zinc-700">Log in</.link>
+          <% end %>
     </div>
   </div>
   <div id="mobile-menu" class="md:hidden hidden">
@@ -46,52 +35,34 @@
         <span class="block px-3 py-2 text-base font-medium text-zinc-900">
           <%= @current_user.email %>
         </span>
-        <.link
-          navigate={~p"/chat"}
-          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50"
-        >
+        <.link navigate={~p"/chat"} class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50">
           Generate Images
         </.link>
-        <.link
-          href={~p"/users/settings"}
-          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50"
-        >
+        <.link navigate={~p"/users/settings"}
+          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50">
           Settings
         </.link>
-        <.link
-          href={~p"/users/log_out"}
-          method="delete"
-          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50"
-        >
+        <.link href={~p"/users/log_out"} method="delete"
+          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50">
           Log out
         </.link>
-      <% else %>
-        <.link
-          navigate={~p"/users/register"}
-          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50"
-        >
-          Sign up
-        </.link>
-        <.link
-          navigate={~p"/users/log_in"}
-          class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50"
-        >
-          Log in
-        </.link>
-      <% end %>
+        <% else %>
+          <.link navigate={~p"/users/register"}
+            class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50">
+            Sign up
+          </.link>
+          <.link navigate={~p"/users/log_in"}
+            class="block px-3 py-2 text-base font-medium text-zinc-900 hover:bg-zinc-50">
+            Log in
+          </.link>
+          <% end %>
     </div>
   </div>
 </header>
 <main class="px-4 py-20 sm:px-6 lg:px-8">
   <div class="mx-auto max-w-2xl">
-    <LiveToast.toast_group
-      toast_class_fn={&toast_class_fn/1}
-      group_class_fn={&group_class_fn/1}
-      flash={@flash}
-      connected={assigns[:socket] != nil}
-      kinds={[:info, :error]}
-      corner={:top_right}
-    />
+    <LiveToast.toast_group toast_class_fn={&toast_class_fn/1} group_class_fn={&group_class_fn/1} flash={@flash}
+      connected={assigns[:socket] !=nil} kinds={[:info, :error]} corner={:top_right} />
     <%= @inner_content %>
   </div>
 </main>
