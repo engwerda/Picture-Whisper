@@ -125,6 +125,7 @@ defmodule PictureWhisperWeb.ChatLive do
     {:noreply, assign(socket, selected_image: nil)}
   end
 
+  @impl true
   def handle_info({:image_generated, generation_id, result}, socket) do
     socket =
       case result do
@@ -154,16 +155,29 @@ defmodule PictureWhisperWeb.ChatLive do
     <div class="max-w-2xl mx-auto">
       <h1 class="text-2xl font-bold mb-4">Generate Images</h1>
       <%= if @selected_image do %>
-        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" phx-click="close_modal">
-          <div class="bg-white p-4 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col" phx-click-away="close_modal">
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          phx-click="close_modal"
+        >
+          <div
+            class="bg-white p-4 rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col"
+            phx-click-away="close_modal"
+          >
             <div class="flex-grow overflow-auto">
-              <img src={@selected_image.url} alt={@selected_image.prompt} class="w-full h-auto object-contain" />
+              <img
+                src={@selected_image.url}
+                alt={@selected_image.prompt}
+                class="w-full h-auto object-contain"
+              />
             </div>
             <div class="mt-4 px-4 py-2 bg-white">
               <h3 class="text-lg font-semibold text-gray-800"><%= @selected_image.prompt %></h3>
               <div class="flex justify-between items-center text-sm text-gray-600 mt-2">
                 <span>
-                  <%= Timex.format!(@selected_image.inserted_at, "{Mfull} {D}, {YYYY} at {h12}:{m} {am}")%>
+                  <%= Timex.format!(
+                    @selected_image.inserted_at,
+                    "{Mfull} {D}, {YYYY} at {h12}:{m} {am}"
+                  ) %>
                 </span>
                 <span><%= @selected_image.quality %> | <%= @selected_image.size %></span>
               </div>
@@ -236,7 +250,9 @@ defmodule PictureWhisperWeb.ChatLive do
         <%= for image <- @images do %>
           <div class="border rounded-md overflow-hidden shadow-md" id={"image-#{image.id}"}>
             <div class="bg-gray-100 px-4 py-2 border-b">
-              <h3 class="text-lg font-semibold text-gray-800 truncate" title={image.prompt}><%= image.prompt %></h3>
+              <h3 class="text-lg font-semibold text-gray-800 truncate" title={image.prompt}>
+                <%= image.prompt %>
+              </h3>
             </div>
             <div class="cursor-pointer" phx-click="open_modal" phx-value-id={image.id}>
               <img src={image.url} alt={image.prompt} class="w-full h-auto" />
