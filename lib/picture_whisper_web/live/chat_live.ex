@@ -235,7 +235,9 @@ defmodule PictureWhisperWeb.ChatLive do
         <%= for image <- @images do %>
           <div class="border rounded-md p-4" id={"image-#{image.id}"}>
             <p class="mb-2"><%= image.prompt %></p>
-            <img src={image.url} alt={image.prompt} class="w-full h-auto" />
+            <div class="cursor-pointer" phx-click="open_modal" phx-value-id={image.id}>
+              <img src={image.url} alt={image.prompt} class="w-full h-auto" />
+            </div>
             <div class="mt-2 text-sm text-gray-600">
               <p>Created: <%= Timex.format!(image.inserted_at, "{relative}", :relative) %></p>
               <p>Quality: <%= image.quality %></p>
