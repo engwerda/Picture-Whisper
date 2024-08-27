@@ -146,6 +146,12 @@ defmodule PictureWhisperWeb.ChatLive do
           |> assign(:total_pages, total_pages)
           |> put_toast(:success, "Image generated successfully!")
 
+        {:error, "Standard quality only allowed with global API key"} ->
+          put_toast(socket, :error, "Only standard quality is allowed with the global API key. Please use your own API key for higher quality.")
+
+        {:error, "Maximum number of images with global API key reached"} ->
+          put_toast(socket, :error, "You've reached the maximum number of images with the global API key. Please use your own API key to generate more images.")
+
         {:error, reason} ->
           put_toast(socket, :error, "Failed to generate image: #{inspect(reason)}")
       end
