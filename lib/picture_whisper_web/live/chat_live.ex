@@ -235,12 +235,12 @@ defmodule PictureWhisperWeb.ChatLive do
       </form>
 
       <%= if map_size(@pending_generations) > 0 do %>
-        <div class="mb-4">
-          <h2 class="text-lg font-semibold mb-2">Pending Generations</h2>
+        <div class="mb-6">
+          <h2 class="text-xl font-semibold mb-3">Pending Generations</h2>
           <%= for {_id, prompt} <- @pending_generations do %>
-            <div class="flex items-center space-x-2 mb-2">
-              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-              <span class="text-sm text-gray-600"><%= prompt %></span>
+            <div class="flex items-center space-x-3 mb-3 bg-gray-50 p-3 rounded-lg">
+              <div class="animate-spin rounded-full h-6 w-6 border-4 border-blue-500 border-t-transparent"></div>
+              <span class="text-base text-gray-700"><%= prompt %></span>
             </div>
           <% end %>
         </div>
