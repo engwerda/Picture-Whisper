@@ -6,11 +6,23 @@ defmodule PictureWhisperWeb.UserLoginLiveTest do
 
   describe "Log in page" do
     test "renders log in page", %{conn: conn} do
-      {:ok, _lv, html} = live(conn, ~p"/users/log_in")
+      {:ok, lv, _html} = live(conn, ~p"/users/log_in")
 
-      assert html =~ "Log in"
-      assert html =~ "Register"
-      assert html =~ "Forgot your password?"
+      assert lv
+             |> element("p", "Don't have an account?")
+             |> has_element?()
+
+      assert lv
+             |> element("a", "Sign up")
+             |> has_element?()
+
+      assert lv
+             |> element("button", "Log in")
+             |> has_element?()
+
+      assert lv
+             |> element("a", "Forgot your password?")
+             |> has_element?()
     end
 
     test "redirects if already logged in", %{conn: conn} do
