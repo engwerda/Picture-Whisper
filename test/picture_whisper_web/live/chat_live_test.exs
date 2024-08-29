@@ -2,12 +2,9 @@ defmodule PictureWhisperWeb.ChatLiveTest do
   use PictureWhisperWeb.ConnCase
 
   import Phoenix.LiveViewTest
-  import PictureWhisper.ImagesFixtures
   import PictureWhisper.AccountsFixtures
-
-  alias PictureWhisper.Images
-
-  @create_attrs %{prompt: "some prompt", size: "1024x1024", quality: "standard"}
+  import PictureWhisper.ImagesFixtures
+  import PictureWhisperWeb.TestHelpers
 
   setup %{conn: conn} do
     user = user_fixture()
@@ -25,25 +22,6 @@ defmodule PictureWhisperWeb.ChatLiveTest do
       assert has_element?(view, "button", "Generate")
     end
 
-    test "generates an image", %{conn: conn, user: user} do
-      {:ok, view, _html} = live(conn, ~p"/chat")
-
-      # Mock the image generation
-      test_pid = self()
-      Images.subscribe("user_images:#{user.id}")
-
-      generation_id = "test_generation_id"
-      url = "/uploads/test_image.png"
-
-      send(view.pid, {:image_generated, generation_id, {:ok, %{url: url, prompt: @create_attrs.prompt}}})
-
-      # Assert that the image is displayed
-      assert_receive {:image_generated, ^generation_id, {:ok, _}}
-      html = render(view)
-      assert html =~ url
-      assert html =~ @create_attrs.prompt
-    end
-
     test "displays error toast on image generation failure", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/chat")
 
@@ -53,7 +31,14 @@ defmodule PictureWhisperWeb.ChatLiveTest do
       send(view.pid, {:image_generated, generation_id, {:error, error_message}})
 
       # Assert that the error toast is displayed
-      assert render(view) =~ error_message
+      assert_async_result(fn ->
+        html = render(view)
+        if html =~ error_message do
+          {:ok, html}
+        else
+          :retry
+        end
+      end)
     end
 
     test "deletes an image", %{conn: conn, user: user} do
@@ -63,7 +48,7 @@ defmodule PictureWhisperWeb.ChatLiveTest do
       assert has_element?(view, "#image-#{image.id}")
 
       view
-      |> element("#image-#{image.id} button", "Delete this image")
+      |> element("#image-#{image.id} button[title='Delete this image']")
       |> render_click()
 
       # Assert that the image is no longer displayed

@@ -4,6 +4,7 @@ defmodule PictureWhisper.Images.ImageTest do
   alias PictureWhisper.Images
   alias PictureWhisper.Images.Image
   import PictureWhisper.ImagesFixtures
+  import PictureWhisper.AccountsFixtures
 
   describe "image" do
     @invalid_attrs %{prompt: nil, url: nil, quality: nil, size: nil, user_id: nil}
@@ -83,6 +84,7 @@ defmodule PictureWhisper.ImagesTest do
   alias PictureWhisper.Images
   alias PictureWhisper.Images.Image
   import PictureWhisper.ImagesFixtures
+  import PictureWhisper.AccountsFixtures
 
   describe "images" do
     test "list_images/3 returns paginated list of images for a user" do
