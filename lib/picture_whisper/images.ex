@@ -1,4 +1,9 @@
 defmodule PictureWhisper.Images do
+  alias Phoenix.PubSub
+
+  def subscribe(topic) do
+    PubSub.subscribe(PictureWhisper.PubSub, topic)
+  end
   @moduledoc """
   The Images context.
   """
@@ -10,6 +15,22 @@ defmodule PictureWhisper.Images do
 
   @max_global_key_images 10
   def max_global_key_images, do: @max_global_key_images
+
+
+  @doc """
+  Returns the total count of images for a given user.
+
+  ## Examples
+
+      iex> count_images(user)
+      15
+
+  """
+  def count_images(user) do
+    Image
+    |> where(user_id: ^user.id)
+    |> Repo.aggregate(:count)
+  end
 
   @doc """
   Returns a list of images for a given user, paginated.
@@ -25,21 +46,6 @@ defmodule PictureWhisper.Images do
     |> where(user_id: ^user.id)
     |> order_by(desc: :inserted_at)
     |> Repo.paginate(page: page, page_size: per_page)
-  end
-
-  @doc """
-  Returns the total count of images for a given user.
-
-  ## Examples
-
-      iex> count_images(user)
-      15
-
-  """
-  def count_images(user) do
-    Image
-    |> where(user_id: ^user.id)
-    |> Repo.aggregate(:count)
   end
 
   @doc """

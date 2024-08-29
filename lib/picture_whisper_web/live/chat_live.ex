@@ -166,7 +166,7 @@ defmodule PictureWhisperWeb.ChatLive do
           put_toast(socket, :error, "You've reached the maximum number of images with the global API key. Please use your own API key to generate more images.")
 
         {:error, reason} ->
-          put_toast(socket, :error, "Failed to generate image: #{inspect(reason)}")
+          put_toast(socket, :error, "Failed to generate image: #{reason}")
       end
 
     socket = update(socket, :pending_generations, &Map.delete(&1, generation_id))
