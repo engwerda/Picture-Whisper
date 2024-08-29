@@ -67,7 +67,8 @@ defmodule PictureWhisper.MixProject do
       {:uuid, "~> 1.1"},
       {:live_toast, "~> 0.6.4"},
       {:timex, "~> 3.7"},
-      {:dotenv, "~> 3.1.0", only: [:dev, :test]}
+      {:dotenv, "~> 3.1.0", only: [:dev, :test]},
+      {:mock, "~> 0.3.0", only: :test}
     ]
   end
 
