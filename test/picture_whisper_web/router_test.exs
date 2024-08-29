@@ -30,7 +30,7 @@ defmodule PictureWhisperWeb.RouterTest do
 
     test "GET /chat", %{conn: conn} do
       conn = get(conn, ~p"/chat")
-      assert html_response(conn, 200) =~ "Chat"
+      assert html_response(conn, 200) =~ "Generate Images"
     end
 
     test "GET /users/settings", %{conn: conn} do
