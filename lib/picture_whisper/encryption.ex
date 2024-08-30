@@ -1,6 +1,4 @@
 defmodule PictureWhisper.Encryption do
-  @key_length 32
-
   def encrypt(plaintext) do
     secret_key = get_secret_key()
     iv = :crypto.strong_rand_bytes(16)
