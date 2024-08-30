@@ -99,6 +99,7 @@ defmodule PictureWhisper.Images do
       end
 
     api_key = get_api_key(user)
+    api_key = if api_key, do: PictureWhisper.Encryption.decrypt(api_key), else: nil
     is_global_key = api_key == Application.get_env(:picture_whisper, :openai)[:global_api_key]
 
     cond do
@@ -148,8 +149,8 @@ defmodule PictureWhisper.Images do
       nil ->
         Application.get_env(:picture_whisper, :openai)[:global_api_key]
 
-      api_key ->
-        api_key
+      encrypted_api_key ->
+        encrypted_api_key
     end
   end
 
