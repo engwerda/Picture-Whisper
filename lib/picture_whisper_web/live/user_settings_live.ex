@@ -32,7 +32,12 @@ defmodule PictureWhisperWeb.UserSettingsLive do
           phx-submit="update_api_key"
           phx-change="validate_api_key"
         >
-          <.input field={@api_key_form[:openai_api_key]} type="password" label="OpenAI API Key" required={@current_user.openai_api_key == nil} />
+          <.input
+            field={@api_key_form[:openai_api_key]}
+            type="password"
+            label="OpenAI API Key"
+            required={@current_user.openai_api_key == nil}
+          />
           <:actions>
             <.button phx-disable-with="Updating...">Update API Key</.button>
             <%= if @current_user.openai_api_key do %>
@@ -250,7 +255,7 @@ defmodule PictureWhisperWeb.UserSettingsLive do
          socket
          |> put_flash(:info, "API key updated successfully.")
          |> assign(:current_user, updated_user)
-         |> assign(:api_key_form, to_form(Accounts.change_user_api_key(updated_user, user_params)))}
+         |> assign(:api_key_form, to_form(Accounts.change_user_api_key(updated_user, %{})))}
 
       {:error, changeset} ->
         {:noreply, assign(socket, api_key_form: to_form(Map.put(changeset, :action, :insert)))}
@@ -263,6 +268,7 @@ defmodule PictureWhisperWeb.UserSettingsLive do
     case Accounts.delete_user_api_key(user) do
       {:ok, updated_user} ->
         api_key_changeset = Accounts.change_user_api_key(updated_user)
+
         {:noreply,
          socket
          |> put_flash(:info, "API key deleted successfully.")
@@ -270,7 +276,7 @@ defmodule PictureWhisperWeb.UserSettingsLive do
          |> assign(:api_key_form, to_form(api_key_changeset))}
 
       {:error, _changeset} ->
-        {:noreply, 
+        {:noreply,
          socket
          |> put_flash(:error, "Failed to delete API key.")}
     end

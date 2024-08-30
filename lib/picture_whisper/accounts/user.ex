@@ -2,6 +2,7 @@ defmodule PictureWhisper.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Inspect, except: [:password, :hashed_password, :openai_api_key]}
   schema "users" do
     field :name, :string
     field :email, :string
@@ -150,14 +151,19 @@ defmodule PictureWhisper.Accounts.User do
     user
     |> cast(attrs, [:openai_api_key])
     |> validate_length(:openai_api_key, min: 32, max: 64)
-    |> validate_format(:openai_api_key, ~r/^sk-[a-zA-Z0-9]{32,}$/, message: "must be a valid OpenAI API key")
-    |> encrypt_api_key()
+    |> validate_format(:openai_api_key, ~r/^sk-[a-zA-Z0-9]{32,}$/,
+      message: "must be a valid OpenAI API key"
+    )
+    |> maybe_encrypt_api_key()
   end
 
-  defp encrypt_api_key(changeset) do
+  defp maybe_encrypt_api_key(changeset) do
     case get_change(changeset, :openai_api_key) do
-      nil -> changeset
-      api_key -> put_change(changeset, :openai_api_key, PictureWhisper.Encryption.encrypt(api_key))
+      nil ->
+        changeset
+
+      api_key ->
+        put_change(changeset, :openai_api_key, PictureWhisper.Encryption.encrypt(api_key))
     end
   end
 
