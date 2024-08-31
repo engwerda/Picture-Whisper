@@ -68,7 +68,12 @@ defmodule PictureWhisper.MixProject do
       {:live_toast, "~> 0.6.4"},
       {:timex, "~> 3.7"},
       {:dotenv, "~> 3.1.0", only: [:dev, :test]},
-      {:mock, "~> 0.3.0", only: :test}
+      {:mock, "~> 0.3.0", only: :test},
+      {:ex_aws, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.0"},
+      {:poison, "~> 3.0"},
+      {:hackney, "~> 1.9"},
+      {:sweet_xml, "~> 0.6.6"},
     ]
   end
 
