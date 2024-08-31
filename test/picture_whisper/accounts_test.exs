@@ -505,4 +505,41 @@ defmodule PictureWhisper.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "api_key_changeset/2" do
+    setup do
+      %{user: user_fixture()}
+    end
+
+    test "validates api key format", %{user: user} do
+      valid_key = "sk-1234567890abcdefghijklmnopqrstuvwxyz"
+      invalid_key = "invalid-key"
+
+      assert %{valid?: true} = User.api_key_changeset(user, %{openai_api_key: valid_key})
+      assert %{valid?: false} = User.api_key_changeset(user, %{openai_api_key: invalid_key})
+    end
+
+    test "encrypts api key", %{user: user} do
+      api_key = "sk-1234567890abcdefghijklmnopqrstuvwxyz"
+      changeset = User.api_key_changeset(user, %{openai_api_key: api_key})
+      
+      assert get_change(changeset, :openai_api_key) != api_key
+      assert is_binary(get_change(changeset, :openai_api_key))
+    end
+
+    test "does not encrypt api key if it's invalid", %{user: user} do
+      invalid_key = "invalid-key"
+      changeset = User.api_key_changeset(user, %{openai_api_key: invalid_key})
+      
+      assert get_change(changeset, :openai_api_key) == invalid_key
+    end
+
+    test "validates api key length", %{user: user} do
+      too_short = "sk-" <> String.duplicate("a", 28)
+      too_long = "sk-" <> String.duplicate("a", 62)
+
+      assert %{valid?: false} = User.api_key_changeset(user, %{openai_api_key: too_short})
+      assert %{valid?: false} = User.api_key_changeset(user, %{openai_api_key: too_long})
+    end
+  end
 end

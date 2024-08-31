@@ -163,7 +163,11 @@ defmodule PictureWhisper.Accounts.User do
         changeset
 
       api_key ->
-        put_change(changeset, :openai_api_key, PictureWhisper.Encryption.encrypt(api_key))
+        if changeset.valid? do
+          put_change(changeset, :openai_api_key, PictureWhisper.Encryption.encrypt(api_key))
+        else
+          changeset
+        end
     end
   end
 
