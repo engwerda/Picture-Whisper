@@ -89,7 +89,11 @@ defmodule PictureWhisperWeb.ChatLive do
 
     case Images.delete_image_and_broadcast(image) do
       {:ok, _} ->
-        {:noreply, put_toast(socket, :warn, "Image deleted successfully!")}
+        updated_images = Enum.reject(socket.assigns.images, &(&1.id == image.id))
+        {:noreply,
+         socket
+         |> assign(:images, updated_images)
+         |> put_toast(:warn, "Image deleted successfully!")}
 
       {:error, _} ->
         {:noreply, put_toast(socket, :error, "Failed to delete image. Please try again.")}

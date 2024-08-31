@@ -1,9 +1,13 @@
 defmodule PictureWhisper.Images do
   alias Phoenix.PubSub
+  alias ExAws.S3
 
   def subscribe(topic) do
     PubSub.subscribe(PictureWhisper.PubSub, topic)
   end
+
+  @bucket "picture-whisper-images"
+  @uploads_directory Application.compile_env(:picture_whisper, :uploads_directory, "priv/static/uploads")
   @moduledoc """
   The Images context.
   """
@@ -198,18 +202,14 @@ defmodule PictureWhisper.Images do
   end
 
   @doc """
-  Saves an image locally.
+  Saves an image to S3 in production or local file system in development.
   """
   def save_image(image_url, prompt, user, quality, size) do
     with {:ok, %{body: image_data, headers: headers}} <- HTTPoison.get(image_url),
          content_type = get_content_type(headers),
          file_extension = get_file_extension(content_type),
          file_name = generate_file_name(file_extension),
-         uploads_dir = Path.join(["priv", "static", "uploads"]),
-         :ok <- File.mkdir_p(uploads_dir),
-         file_path = Path.join(uploads_dir, file_name),
-         :ok <- File.write(file_path, image_data),
-         full_url = "/uploads/#{file_name}",
+         {:ok, full_url} <- save_image_file(file_name, image_data),
          attrs = %{
            prompt: prompt,
            url: full_url,
@@ -222,6 +222,22 @@ defmodule PictureWhisper.Images do
       {:ok, image}
     else
       {:error, reason} -> {:error, "Failed to save image: #{inspect(reason)}"}
+    end
+  end
+
+  defp save_image_file(file_name, image_data) do
+    if Mix.env() == :prod do
+      case S3.put_object(@bucket, file_name, image_data) |> ExAws.request() do
+        {:ok, _} ->
+          {:ok, "https://#{@bucket}.fly.storage.tigris.dev/#{file_name}"}
+        error ->
+          error
+      end
+    else
+      file_path = Path.join(@uploads_directory, file_name)
+      with :ok <- File.write(file_path, image_data) do
+        {:ok, "/uploads/#{file_name}"}
+      end
     end
   end
 
@@ -242,7 +258,7 @@ defmodule PictureWhisper.Images do
   def get_image!(id), do: Repo.get!(Image, id)
 
   @doc """
-  Deletes an image and broadcasts the deletion.
+  Deletes an image from S3 in production or local file system in development and broadcasts the deletion.
 
   ## Examples
 
@@ -251,18 +267,34 @@ defmodule PictureWhisper.Images do
 
   """
   def delete_image_and_broadcast(%Image{} = image) do
-    case Repo.delete(image) do
-      {:ok, deleted_image} ->
-        Phoenix.PubSub.broadcast(
-          PictureWhisper.PubSub,
-          "user_images:#{image.user_id}",
-          {:image_deleted, deleted_image.id}
-        )
+    with :ok <- delete_image_file(image),
+         {:ok, deleted_image} <- Repo.delete(image) do
+      Phoenix.PubSub.broadcast(
+        PictureWhisper.PubSub,
+        "user_images:#{image.user_id}",
+        {:image_deleted, deleted_image.id}
+      )
 
-        {:ok, deleted_image}
+      {:ok, deleted_image}
+    else
+      error -> error
+    end
+  end
 
-      error ->
-        error
+  defp delete_image_file(image) do
+    if Mix.env() == :prod do
+      file_name = URI.parse(image.url).path |> String.trim_leading("/")
+      case S3.delete_object(@bucket, file_name) |> ExAws.request() do
+        {:ok, _} -> :ok
+        error -> error
+      end
+    else
+      file_path = Path.join(@uploads_directory, Path.basename(image.url))
+      case File.rm(file_path) do
+        :ok -> :ok
+        {:error, :enoent} -> :ok  # File doesn't exist, consider it deleted
+        error -> error
+      end
     end
   end
 
