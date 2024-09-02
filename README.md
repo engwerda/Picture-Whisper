@@ -33,7 +33,7 @@ PictureWhisper is an Elixir-based web application that allows users to generate 
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/engwerda/picture_whisper.git
+   git clone https://github.com/engwerda/Picture-Whisper.git
    cd picture_whisper
    ```
 
