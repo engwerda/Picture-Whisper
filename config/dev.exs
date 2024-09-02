@@ -88,5 +88,3 @@ config :swoosh, :api_client, false
 # Add OpenAI API key
 config :picture_whisper, :openai_api_key, "your_openai_api_key_here"
 
-# Configure uploads directory
-config :picture_whisper, :uploads_directory, "priv/static/uploads"

@@ -6,8 +6,11 @@ defmodule PictureWhisper.Images do
     PubSub.subscribe(PictureWhisper.PubSub, topic)
   end
 
-  @bucket "picture-whisper-images"
-  @uploads_directory Application.compile_env(:picture_whisper, :uploads_directory, "priv/static/uploads")
+  @bucket Application.compile_env(:picture_whisper, :bucket_name)
+  @uploads_directory Application.compile_env(
+                       :picture_whisper,
+                       :uploads_directory
+                     )
   @moduledoc """
   The Images context.
   """
@@ -17,9 +20,7 @@ defmodule PictureWhisper.Images do
 
   alias PictureWhisper.Images.Image
 
-  @max_global_key_images 10
-  def max_global_key_images, do: @max_global_key_images
-
+  @max_global_key_images Application.compile_env(:picture_whisper, :max_global_key_images)
 
   @doc """
   Returns the total count of images for a given user.
@@ -230,11 +231,13 @@ defmodule PictureWhisper.Images do
       case S3.put_object(@bucket, file_name, image_data) |> ExAws.request() do
         {:ok, _} ->
           {:ok, "https://#{@bucket}.fly.storage.tigris.dev/#{file_name}"}
+
         error ->
           error
       end
     else
       file_path = Path.join(@uploads_directory, file_name)
+
       with :ok <- File.write(file_path, image_data) do
         {:ok, "/uploads/#{file_name}"}
       end
@@ -284,15 +287,18 @@ defmodule PictureWhisper.Images do
   defp delete_image_file(image) do
     if Mix.env() == :prod do
       file_name = URI.parse(image.url).path |> String.trim_leading("/")
+
       case S3.delete_object(@bucket, file_name) |> ExAws.request() do
         {:ok, _} -> :ok
         error -> error
       end
     else
       file_path = Path.join(@uploads_directory, Path.basename(image.url))
+
       case File.rm(file_path) do
         :ok -> :ok
-        {:error, :enoent} -> :ok  # File doesn't exist, consider it deleted
+        # File doesn't exist, consider it deleted
+        {:error, :enoent} -> :ok
         error -> error
       end
     end

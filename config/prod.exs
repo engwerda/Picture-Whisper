@@ -29,5 +29,11 @@ config :ex_aws, :s3,
   host: "fly.storage.tigris.dev",
   region: "auto"
 
+# Configure number of free images allowed per user
+config :picture_whisper, :max_global_key_images, 15
+
+# Bucket name for S3 or compatible storage
+config :picture_whisper, :bucket_name, "picture-whisper-images"
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

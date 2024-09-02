@@ -1,6 +1,5 @@
 import Config
 
-
 # Only in tests, remove the complexity from the password hashing algorithm
 config :bcrypt_elixir, :log_rounds, 1
 
@@ -39,3 +38,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Configure number of free images allowed per user
+# Keep at 10 for testing purposes
+config :picture_whisper, :max_global_key_images, 10

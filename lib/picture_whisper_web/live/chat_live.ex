@@ -13,7 +13,7 @@ defmodule PictureWhisperWeb.ChatLive do
     {"Landscape", "1792x1024"}
   ]
   @quality_options ["standard", "hd"]
-  @max_global_key_images PictureWhisper.Images.max_global_key_images()
+  @max_global_key_images Application.compile_env(:picture_whisper, :max_global_key_images)
 
   @impl true
   def mount(_params, session, socket) do
@@ -31,7 +31,9 @@ defmodule PictureWhisperWeb.ChatLive do
       images_page = Images.list_images(socket.assigns.current_user, 1, @images_per_page)
       total_images = Images.count_images(socket.assigns.current_user)
       total_pages = ceil(total_images / @images_per_page)
-      {free_images_used, free_images_left} = Images.get_free_image_stats(socket.assigns.current_user)
+
+      {free_images_used, free_images_left} =
+        Images.get_free_image_stats(socket.assigns.current_user)
 
       {:ok,
        assign(socket,
@@ -90,6 +92,7 @@ defmodule PictureWhisperWeb.ChatLive do
     case Images.delete_image_and_broadcast(image) do
       {:ok, _} ->
         updated_images = Enum.reject(socket.assigns.images, &(&1.id == image.id))
+
         {:noreply,
          socket
          |> assign(:images, updated_images)
@@ -152,10 +155,15 @@ defmodule PictureWhisperWeb.ChatLive do
           # Fetch the latest images
           total_images = Images.count_images(socket.assigns.current_user)
           total_pages = ceil(total_images / @images_per_page)
-          {free_images_used, free_images_left} = Images.get_free_image_stats(socket.assigns.current_user)
+
+          {free_images_used, free_images_left} =
+            Images.get_free_image_stats(socket.assigns.current_user)
 
           socket
-          |> assign(:images, Images.list_images(socket.assigns.current_user, 1, @images_per_page).entries)
+          |> assign(
+            :images,
+            Images.list_images(socket.assigns.current_user, 1, @images_per_page).entries
+          )
           |> assign(:page, 1)
           |> assign(:total_images, total_images)
           |> assign(:total_pages, total_pages)
@@ -164,10 +172,18 @@ defmodule PictureWhisperWeb.ChatLive do
           |> put_toast(:success, "Image generated successfully!")
 
         {:error, "Standard quality only allowed with global API key"} ->
-          put_toast(socket, :error, "Only standard quality is allowed with the global API key. Please use your own API key for higher quality.")
+          put_toast(
+            socket,
+            :error,
+            "Only standard quality is allowed with the global API key. Please use your own API key for higher quality."
+          )
 
         {:error, "Maximum number of images with global API key reached"} ->
-          put_toast(socket, :error, "You've reached the maximum number of images with the global API key. Please use your own API key to generate more images.")
+          put_toast(
+            socket,
+            :error,
+            "You've reached the maximum number of images with the global API key. Please use your own API key to generate more images."
+          )
 
         {:error, reason} ->
           put_toast(socket, :error, "Failed to generate image: #{reason}")
@@ -185,7 +201,10 @@ defmodule PictureWhisperWeb.ChatLive do
       <%= if @using_global_key do %>
         <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4" role="alert">
           <p class="font-bold">Using free API key</p>
-          <p>You have used <%= @free_images_used %> out of <%= @max_global_key_images %> free images. <%= @max_global_key_images - @free_images_used %> free images left.</p>
+          <p>
+            You have used <%= @free_images_used %> out of <%= @max_global_key_images %> free images. <%= @max_global_key_images -
+              @free_images_used %> free images left.
+          </p>
           <p class="mt-2">Add your own API key in the settings to remove this limit.</p>
         </div>
       <% end %>
