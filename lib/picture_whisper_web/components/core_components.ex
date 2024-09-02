@@ -17,7 +17,7 @@ defmodule PictureWhisperWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import PictureWhisperWeb.Gettext
+  use Gettext, backend: PictureWhisperWeb.Gettext
 
   @doc """
   Renders a modal.

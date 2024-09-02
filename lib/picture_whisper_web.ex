@@ -43,7 +43,7 @@ defmodule PictureWhisperWeb do
         layouts: [html: PictureWhisperWeb.Layouts]
 
       import Plug.Conn
-      import PictureWhisperWeb.Gettext
+      use Gettext, backend: PictureWhisperWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -85,7 +85,7 @@ defmodule PictureWhisperWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import PictureWhisperWeb.CoreComponents
-      import PictureWhisperWeb.Gettext
+      use Gettext, backend: PictureWhisperWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
