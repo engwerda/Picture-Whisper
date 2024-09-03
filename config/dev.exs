@@ -1,6 +1,5 @@
 import Config
 
-
 # Configure your database
 config :picture_whisper, PictureWhisper.Repo,
   username: "postgres",
@@ -85,6 +84,5 @@ config :phoenix_live_view,
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
-# Add OpenAI API key
-config :picture_whisper, :openai_api_key, "your_openai_api_key_here"
-
+# Configure uploads directory
+config :picture_whisper, :uploads_directory, "priv/static/uploads"

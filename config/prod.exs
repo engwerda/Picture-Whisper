@@ -9,7 +9,7 @@ config :picture_whisper, PictureWhisperWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configures Swoosh API Client
-config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: PictureWhisper.Finch
+# config :swoosh, api_client: Swoosh.ApiClient.Finch, finch_name: PictureWhisper.Finch
 
 # Disable Swoosh Local Memory Storage
 config :swoosh, local: false
@@ -29,11 +29,10 @@ config :ex_aws, :s3,
   host: "fly.storage.tigris.dev",
   region: "auto"
 
+# Bucket name for S3 or compatible storage
+config :picture_whisper, :bucket_name, System.get_env("BUCKET_NAME")
+
 # Configure number of free images allowed per user
 config :picture_whisper, :max_global_key_images, 15
-
-# Bucket name for S3 or compatible storage
-config :picture_whisper, :bucket_name, "picture-whisper-images"
-
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

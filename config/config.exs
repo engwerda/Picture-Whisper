@@ -65,17 +65,10 @@ config :phoenix, :json_library, Jason
 
 # OpenAI API configuration
 config :openai,
-  api_key: System.get_env("OPENAI_API_KEY"),
-  organization_key: System.get_env("OPENAI_ORGANIZATION_KEY")
-
-# Configure uploads directory
-config :picture_whisper, :uploads_directory, "priv/static/uploads"
+  api_key: System.get_env("OPENAI_API_KEY")
 
 # Configure number of free images allowed per user
 config :picture_whisper, :max_global_key_images, 100
-
-# Bucket name for S3 or compatible storage
-config :picture_whisper, :bucket_name, ""
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
