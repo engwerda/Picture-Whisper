@@ -80,6 +80,9 @@ if config_env() == :prod do
 
   config :picture_whisper, :bucket_name, {:system, "BUCKET_NAME"}
 
+  config :openai,
+    api_key: {:system, "OPENAI_API_KEY"}
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key
