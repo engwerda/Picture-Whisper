@@ -13,9 +13,9 @@ PictureWhisper is an Elixir-based web application that allows users to generate 
 
 ## Technologies Used
 
-- Elixir
-- Phoenix Framework
-- Phoenix LiveView
+- [Elixir](https://elixir-lang.org/)
+- [Phoenix Framework](https://www.phoenixframework.org/)
+- [Phoenix LiveView](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html)
 - PostgreSQL
 - OpenAI API
 - Tailwind CSS
