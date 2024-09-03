@@ -60,20 +60,20 @@ defmodule PictureWhisper.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      {:openai, "~> 0.5.4"},
-      {:httpoison, "~> 2.0"},
+      {:openai, "~> 0.6.2"},
+      {:httpoison, "~> 2.2"},
       {:mime, "~> 2.0"},
       {:scrivener_ecto, "~> 2.7"},
       {:uuid, "~> 1.1"},
       {:live_toast, "~> 0.6.4"},
       {:timex, "~> 3.7"},
-      {:dotenv, "~> 3.1.0", only: [:dev, :test]},
+      {:dotenv, "~> 3.1.0"},
       {:mock, "~> 0.3.0", only: :test},
-      {:ex_aws, "~> 2.0"},
-      {:ex_aws_s3, "~> 2.0"},
-      {:poison, "~> 3.0"},
-      {:hackney, "~> 1.9"},
-      {:sweet_xml, "~> 0.6.6"},
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.5"},
+      {:poison, "~> 6.0"},
+      {:hackney, "~> 1.20"},
+      {:sweet_xml, "~> 0.7.4"}
     ]
   end
 
