@@ -75,7 +75,10 @@ if config_env() == :prod do
   config :ex_aws, :s3,
     scheme: "https://",
     host: "fly.storage.tigris.dev",
-    region: "auto"
+    region: "auto",
+    bucket: {:system, "BUCKET_NAME"}
+
+  config :picture_whisper, :bucket_name, {:system, "BUCKET_NAME"}
 
   # ## SSL Support
   #

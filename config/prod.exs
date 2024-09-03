@@ -27,10 +27,10 @@ config :ex_aws,
 config :ex_aws, :s3,
   scheme: "https://",
   host: "fly.storage.tigris.dev",
-  region: "auto"
+  region: "auto",
+  bucket: {:system, "BUCKET_NAME"}
 
-# Bucket name for S3 or compatible storage
-config :picture_whisper, :bucket_name, System.get_env("BUCKET_NAME")
+# Bucket name for S3 or compatible storage will be set in runtime.exs
 
 # Configure number of free images allowed per user
 config :picture_whisper, :max_global_key_images, 15

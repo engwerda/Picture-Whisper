@@ -2,15 +2,17 @@ defmodule PictureWhisper.Images do
   alias Phoenix.PubSub
   alias ExAws.S3
 
+  require Logger
+
   def subscribe(topic) do
     PubSub.subscribe(PictureWhisper.PubSub, topic)
   end
 
-  @bucket Application.compile_env(:picture_whisper, :bucket_name)
   @uploads_directory Application.compile_env(
                        :picture_whisper,
                        :uploads_directory
                      )
+
   @moduledoc """
   The Images context.
   """
@@ -21,6 +23,14 @@ defmodule PictureWhisper.Images do
   alias PictureWhisper.Images.Image
 
   @max_global_key_images Application.compile_env(:picture_whisper, :max_global_key_images)
+
+  def get_bucket_name do
+    Application.fetch_env!(:picture_whisper, :bucket_name)
+    |> case do
+      {:system, env_var} -> System.fetch_env!(env_var)
+      value when is_binary(value) -> value
+    end
+  end
 
   @doc """
   Returns the total count of images for a given user.
@@ -226,20 +236,40 @@ defmodule PictureWhisper.Images do
     end
   end
 
-  defp save_image_file(file_name, image_data) do
-    if Mix.env() == :prod do
-      case S3.put_object(@bucket, file_name, image_data) |> ExAws.request() do
-        {:ok, _} ->
-          {:ok, "https://#{@bucket}.fly.storage.tigris.dev/#{file_name}"}
+  @env Mix.env()
+  @s3_domain System.get_env("S3_DOMAIN", "fly.storage.tigris.dev")
 
-        error ->
-          error
+  defp save_image_file(file_name, image_data) do
+    if @env == :prod do
+      bucket =
+        try do
+          get_bucket_name()
+        rescue
+          _ -> nil
+        end
+
+      if is_nil(bucket) do
+        Logger.error("Bucket name is not configured")
+        {:error, "Bucket name is not configured"}
+      else
+        case S3.put_object(bucket, file_name, image_data) |> ExAws.request() do
+          {:ok, _} ->
+            {:ok, "https://#{bucket}.#{@s3_domain}/#{file_name}"}
+
+          error ->
+            Logger.error("Failed to upload file to S3: #{inspect(error)}")
+            error
+        end
       end
     else
       file_path = Path.join(@uploads_directory, file_name)
 
       with :ok <- File.write(file_path, image_data) do
         {:ok, "/uploads/#{file_name}"}
+      else
+        error ->
+          Logger.error("Failed to write file locally: #{inspect(error)}")
+          error
       end
     end
   end
@@ -284,25 +314,37 @@ defmodule PictureWhisper.Images do
     end
   end
 
-  defp delete_image_file(image) do
-    if Mix.env() == :prod do
-      file_name = URI.parse(image.url).path |> String.trim_leading("/")
-
-      case S3.delete_object(@bucket, file_name) |> ExAws.request() do
-        {:ok, _} -> :ok
-        error -> error
-      end
+defp delete_image_file(image) do
+  if @env == :prod do
+    bucket = get_bucket_name()
+    if is_nil(bucket) do
+      Logger.error("Bucket name is not configured for image deletion")
+      {:error, "Bucket name is not configured"}
     else
-      file_path = Path.join(@uploads_directory, Path.basename(image.url))
-
-      case File.rm(file_path) do
-        :ok -> :ok
-        # File doesn't exist, consider it deleted
-        {:error, :enoent} -> :ok
-        error -> error
+      file_name = URI.parse(image.url).path |> String.trim_leading("/")
+      case S3.delete_object(bucket, file_name) |> ExAws.request() do
+        {:ok, _} -> 
+          Logger.info("Successfully deleted image from S3: #{file_name}")
+          :ok
+        error -> 
+          Logger.error("Failed to delete image from S3: #{inspect(error)}")
+          error
       end
     end
+  else
+    file_path = Path.join(@uploads_directory, Path.basename(image.url))
+    case File.rm(file_path) do
+      :ok -> 
+        Logger.info("Successfully deleted image file: #{file_path}")
+        :ok
+      {:error, :enoent} -> 
+        Logger.warning("File not found for deletion, considering it already deleted: #{file_path}")
+        :ok
+      error -> 
+        Logger.error("Failed to delete image file: #{inspect(error)}")
+        error
+    end
   end
-
+end
   # ... (rest of the existing functions remain unchanged)
 end
