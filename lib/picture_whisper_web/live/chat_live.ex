@@ -333,6 +333,7 @@ defmodule PictureWhisperWeb.ChatLive do
                     download
                     class="text-green-500 hover:text-green-700"
                     title="Download this image"
+                    target="_blank"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
