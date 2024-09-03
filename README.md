@@ -61,7 +61,7 @@ PictureWhisper is an Elixir-based web application that allows users to generate 
    ```
    Then open `.env` in your text editor and add your OpenAI API key:
    ```sh
-   OPENAI_GLOBAL_API_KEY=your_openai_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here
    ```
 
 5. Start the Phoenix server:
