@@ -62,8 +62,12 @@ defmodule PictureWhisperWeb.UserRegistrationLive do
             &url(~p"/users/confirm/#{&1}")
           )
 
-        changeset = Accounts.change_user_registration(user)
-        {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
+        socket =
+          socket
+          |> put_flash(:info, "User created successfully. Please check your email to confirm your account.")
+          |> push_navigate(to: ~p"/users/log_in")
+
+        {:noreply, socket}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, socket |> assign(check_errors: true) |> assign_form(changeset)}
