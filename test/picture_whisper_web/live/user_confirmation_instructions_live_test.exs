@@ -8,7 +8,7 @@ defmodule PictureWhisperWeb.UserConfirmationInstructionsLiveTest do
   alias PictureWhisper.Repo
 
   setup do
-    %{user: user_fixture()}
+    %{unconfirmed_user: unconfirmed_user_fixture()}
   end
 
   describe "Resend confirmation" do
@@ -17,36 +17,39 @@ defmodule PictureWhisperWeb.UserConfirmationInstructionsLiveTest do
       assert html =~ "Resend confirmation instructions"
     end
 
-    test "sends a new confirmation token", %{conn: conn, user: user} do
+    test "sends a new confirmation token", %{conn: conn, unconfirmed_user: unconfirmed_user} do
       {:ok, lv, _html} = live(conn, ~p"/users/confirm")
 
       {:ok, conn} =
         lv
-        |> form("#resend_confirmation_form", user: %{email: user.email})
+        |> form("#resend_confirmation_form", user: %{email: unconfirmed_user.email})
         |> render_submit()
         |> follow_redirect(conn, ~p"/")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "If your email is in our system"
 
-      assert Repo.get_by!(Accounts.UserToken, user_id: user.id).context == "confirm"
+      assert Repo.get_by!(Accounts.UserToken, user_id: unconfirmed_user.id).context == "confirm"
     end
 
-    test "does not send confirmation token if user is confirmed", %{conn: conn, user: user} do
-      Repo.update!(Accounts.User.confirm_changeset(user))
+    test "does not send confirmation token if user is confirmed", %{
+      conn: conn,
+      unconfirmed_user: unconfirmed_user
+    } do
+      Repo.update!(Accounts.User.confirm_changeset(unconfirmed_user))
 
       {:ok, lv, _html} = live(conn, ~p"/users/confirm")
 
       {:ok, conn} =
         lv
-        |> form("#resend_confirmation_form", user: %{email: user.email})
+        |> form("#resend_confirmation_form", user: %{email: unconfirmed_user.email})
         |> render_submit()
         |> follow_redirect(conn, ~p"/")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "If your email is in our system"
 
-      refute Repo.get_by(Accounts.UserToken, user_id: user.id)
+      refute Repo.get_by(Accounts.UserToken, user_id: unconfirmed_user.id)
     end
 
     test "does not send confirmation token if email is invalid", %{conn: conn} do

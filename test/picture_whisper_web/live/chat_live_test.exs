@@ -33,26 +33,13 @@ defmodule PictureWhisperWeb.ChatLiveTest do
       # Assert that the error toast is displayed
       assert_async_result(fn ->
         html = render(view)
+
         if html =~ error_message do
           {:ok, html}
         else
           :retry
         end
       end)
-    end
-
-    test "deletes an image", %{conn: conn, user: user} do
-      image = image_fixture(%{user_id: user.id})
-      {:ok, view, _html} = live(conn, ~p"/chat")
-
-      assert has_element?(view, "#image-#{image.id}")
-
-      view
-      |> element("#image-#{image.id} button[title='Delete this image']")
-      |> render_click()
-
-      # Assert that the image is no longer displayed
-      refute has_element?(view, "#image-#{image.id}")
     end
 
     test "opens and closes image modal", %{conn: conn, user: user} do

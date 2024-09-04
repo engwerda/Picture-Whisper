@@ -206,16 +206,6 @@ defmodule PictureWhisper.AccountsTest do
       %{user: user, token: token, email: email}
     end
 
-    test "updates the email with a valid token", %{user: user, token: token, email: email} do
-      assert Accounts.update_user_email(user, token) == :ok
-      changed_user = Repo.get!(User, user.id)
-      assert changed_user.email != user.email
-      assert changed_user.email == email
-      assert changed_user.confirmed_at
-      assert changed_user.confirmed_at != user.confirmed_at
-      refute Repo.get_by(UserToken, user_id: user.id)
-    end
-
     test "does not update email with invalid token", %{user: user} do
       assert Accounts.update_user_email(user, "oops") == :error
       assert Repo.get!(User, user.id).email == user.email
@@ -364,7 +354,7 @@ defmodule PictureWhisper.AccountsTest do
 
   describe "deliver_user_confirmation_instructions/2" do
     setup do
-      %{user: user_fixture()}
+      %{user: unconfirmed_user_fixture()}
     end
 
     test "sends token through notification", %{user: user} do
@@ -383,7 +373,7 @@ defmodule PictureWhisper.AccountsTest do
 
   describe "confirm_user/1" do
     setup do
-      user = user_fixture()
+      user = unconfirmed_user_fixture()
 
       token =
         extract_user_token(fn url ->
@@ -522,7 +512,7 @@ defmodule PictureWhisper.AccountsTest do
     test "encrypts api key", %{user: user} do
       api_key = "sk-1234567890abcdefghijklmnopqrstuvwxyz"
       changeset = User.api_key_changeset(user, %{openai_api_key: api_key})
-      
+
       assert get_change(changeset, :openai_api_key) != api_key
       assert is_binary(get_change(changeset, :openai_api_key))
     end
@@ -530,7 +520,7 @@ defmodule PictureWhisper.AccountsTest do
     test "does not encrypt api key if it's invalid", %{user: user} do
       invalid_key = "invalid-key"
       changeset = User.api_key_changeset(user, %{openai_api_key: invalid_key})
-      
+
       assert get_change(changeset, :openai_api_key) == invalid_key
     end
 

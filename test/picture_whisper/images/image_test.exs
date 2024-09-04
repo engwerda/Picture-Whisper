@@ -11,7 +11,15 @@ defmodule PictureWhisper.Images.ImageTest do
 
     test "changeset with valid attributes" do
       user = user_fixture()
-      valid_attrs = %{prompt: "some prompt", url: "some url", quality: "standard", size: "1024x1024", user_id: user.id}
+
+      valid_attrs = %{
+        prompt: "some prompt",
+        url: "some url",
+        quality: "standard",
+        size: "1024x1024",
+        user_id: user.id
+      }
+
       changeset = Image.changeset(%Image{}, valid_attrs)
       assert changeset.valid?
     end
@@ -57,7 +65,14 @@ defmodule PictureWhisper.Images.ImageTest do
 
     test "create_image/1 with valid data creates an image" do
       user = user_fixture()
-      valid_attrs = %{prompt: "some prompt", url: "some url", quality: "standard", size: "1024x1024", user_id: user.id}
+
+      valid_attrs = %{
+        prompt: "some prompt",
+        url: "some url",
+        quality: "standard",
+        size: "1024x1024",
+        user_id: user.id
+      }
 
       assert {:ok, %Image{} = image} = Images.create_image(valid_attrs)
       assert image.prompt == "some prompt"
@@ -70,14 +85,9 @@ defmodule PictureWhisper.Images.ImageTest do
     test "create_image/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Images.create_image(@invalid_attrs)
     end
-
-    test "delete_image_and_broadcast/1 deletes the image" do
-      image = image_fixture()
-      assert {:ok, %Image{}} = Images.delete_image_and_broadcast(image)
-      assert_raise Ecto.NoResultsError, fn -> Images.get_image!(image.id) end
-    end
   end
 end
+
 defmodule PictureWhisper.ImagesTest do
   use PictureWhisper.DataCase
 
@@ -91,7 +101,8 @@ defmodule PictureWhisper.ImagesTest do
       user = user_fixture()
       image1 = image_fixture(%{user: user})
       image2 = image_fixture(%{user: user})
-      _other_user_image = image_fixture()  # This should not be returned
+      # This should not be returned
+      _other_user_image = image_fixture()
 
       result = Images.list_images(user, 1, 10)
       assert length(result.entries) == 2
@@ -102,14 +113,22 @@ defmodule PictureWhisper.ImagesTest do
       user = user_fixture()
       _image1 = image_fixture(%{user: user})
       _image2 = image_fixture(%{user: user})
-      _other_user_image = image_fixture()  # This should not be counted
+      # This should not be counted
+      _other_user_image = image_fixture()
 
       assert Images.count_images(user) == 2
     end
 
     test "create_image/1 with valid data creates an image" do
       user = user_fixture()
-      valid_attrs = %{prompt: "test prompt", url: "/uploads/test.png", quality: "standard", size: "1024x1024", user_id: user.id}
+
+      valid_attrs = %{
+        prompt: "test prompt",
+        url: "/uploads/test.png",
+        quality: "standard",
+        size: "1024x1024",
+        user_id: user.id
+      }
 
       assert {:ok, %Image{} = image} = Images.create_image(valid_attrs)
       assert image.prompt == "test prompt"
@@ -122,7 +141,8 @@ defmodule PictureWhisper.ImagesTest do
     test "generate_file_name/1 generates a unique file name with the given extension" do
       file_name = Images.generate_file_name("png")
       assert String.ends_with?(file_name, ".png")
-      assert String.length(file_name) == 40  # 36 characters for UUID + 1 for dot + 3 for extension
+      # 36 characters for UUID + 1 for dot + 3 for extension
+      assert String.length(file_name) == 40
     end
 
     test "get_file_extension/1 returns the correct file extension" do

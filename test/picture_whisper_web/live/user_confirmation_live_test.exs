@@ -8,7 +8,10 @@ defmodule PictureWhisperWeb.UserConfirmationLiveTest do
   alias PictureWhisper.Repo
 
   setup do
-    %{user: user_fixture()}
+    %{
+      user: user_fixture(),
+      unconfirmed_user: unconfirmed_user_fixture()
+    }
   end
 
   describe "Confirm user" do
@@ -17,10 +20,10 @@ defmodule PictureWhisperWeb.UserConfirmationLiveTest do
       assert html =~ "Confirm Account"
     end
 
-    test "confirms the given token once", %{conn: conn, user: user} do
+    test "confirms the given token once", %{conn: conn, unconfirmed_user: unconfirmed_user} do
       token =
         extract_user_token(fn url ->
-          Accounts.deliver_user_confirmation_instructions(user, url)
+          Accounts.deliver_user_confirmation_instructions(unconfirmed_user, url)
         end)
 
       {:ok, lv, _html} = live(conn, ~p"/users/confirm/#{token}")
@@ -36,7 +39,7 @@ defmodule PictureWhisperWeb.UserConfirmationLiveTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~
                "User confirmed successfully"
 
-      assert Accounts.get_user!(user.id).confirmed_at
+      assert Accounts.get_user!(unconfirmed_user.id).confirmed_at
       refute get_session(conn, :user_token)
       assert Repo.all(Accounts.UserToken) == []
 
@@ -57,7 +60,7 @@ defmodule PictureWhisperWeb.UserConfirmationLiveTest do
       # when logged in
       conn =
         build_conn()
-        |> log_in_user(user)
+        |> log_in_user(unconfirmed_user)
 
       {:ok, lv, _html} = live(conn, ~p"/users/confirm/#{token}")
 
@@ -71,7 +74,10 @@ defmodule PictureWhisperWeb.UserConfirmationLiveTest do
       refute Phoenix.Flash.get(conn.assigns.flash, :error)
     end
 
-    test "does not confirm email with invalid token", %{conn: conn, user: user} do
+    test "does not confirm email with invalid token", %{
+      conn: conn,
+      unconfirmed_user: unconfirmed_user
+    } do
       {:ok, lv, _html} = live(conn, ~p"/users/confirm/invalid-token")
 
       {:ok, conn} =
@@ -83,7 +89,7 @@ defmodule PictureWhisperWeb.UserConfirmationLiveTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "User confirmation link is invalid or it has expired"
 
-      refute Accounts.get_user!(user.id).confirmed_at
+      refute Accounts.get_user!(unconfirmed_user.id).confirmed_at
     end
   end
 end
