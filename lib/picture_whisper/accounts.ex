@@ -308,6 +308,12 @@ defmodule PictureWhisper.Accounts do
     end
   end
 
+  def confirm_user(%User{} = user) do
+    user
+    |> User.confirm_changeset()
+    |> Repo.update()
+  end
+
   defp confirm_user_multi(user) do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, User.confirm_changeset(user))
