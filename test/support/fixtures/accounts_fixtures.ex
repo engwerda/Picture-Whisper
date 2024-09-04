@@ -16,18 +16,29 @@ defmodule PictureWhisper.AccountsFixtures do
     })
   end
 
-  def user_fixture(attrs \\ %{}) do
+  def base_user_fixture(attrs \\ %{}) do
     {:ok, user} =
       attrs
       |> valid_user_attributes()
       |> PictureWhisper.Accounts.register_user()
 
-    token = extract_user_token(fn url ->
-      PictureWhisper.Accounts.deliver_user_confirmation_instructions(user, url)
-    end)
+    user
+  end
+
+  def user_fixture(attrs \\ %{}) do
+    user = base_user_fixture(attrs)
+
+    token =
+      extract_user_token(fn url ->
+        PictureWhisper.Accounts.deliver_user_confirmation_instructions(user, url)
+      end)
 
     {:ok, confirmed_user} = PictureWhisper.Accounts.confirm_user(token)
     confirmed_user
+  end
+
+  def unconfirmed_user_fixture(attrs \\ %{}) do
+    base_user_fixture(attrs)
   end
 
   def extract_user_token(fun) do
